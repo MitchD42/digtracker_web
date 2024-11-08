@@ -3,10 +3,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
-import { AFE, GWDWithAFE, AFEWithPipelines, Pipeline } from '@/types/database'
+import { AFE, GWDWithAFE, AFEWithPipelines, Pipeline, System } from '@/types/database'
 
 interface GWDCreateProps {
   afes: AFEWithPipelines[]
+  systems: System[]
   onSuccess: () => void
 }
 
@@ -28,7 +29,7 @@ interface NewGWD {
   notes: string
 }
 
-export default function GWDCreate({ afes, onSuccess }: GWDCreateProps) {
+export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) {
   const supabase = createClient()
   const [newGWD, setNewGWD] = useState<NewGWD>({
     gwd_number: '',
@@ -49,18 +50,47 @@ export default function GWDCreate({ afes, onSuccess }: GWDCreateProps) {
   const [availablePipelines, setAvailablePipelines] = useState<Pipeline[]>([])
 
   const handleAFEChange = (afeId: string) => {
+    console.log('AFE ID:', afeId)
+    console.log('All AFEs:', afes)
+    
+    if (!afeId) {
+      setNewGWD(prev => ({
+        ...prev,
+        afe_id: '',
+        system: '',
+        pipeline: '',
+      }))
+      setAvailablePipelines([])
+      return
+    }
+
     const selectedAFE = afes.find(afe => afe.afe_id.toString() === afeId)
+    console.log('Selected AFE:', selectedAFE)
+    
+    if (!selectedAFE) {
+      console.log('No AFE found')
+      return
+    }
+
+    console.log('Systems:', systems)
+    console.log('Selected AFE system_id:', selectedAFE.system_id)
+    console.log('AFE Pipelines:', selectedAFE.afe_pipelines)
+    
+    const systemName = systems.find(s => s.system_id === selectedAFE.system_id)?.system_name || ''
+    console.log('System Name:', systemName)
     
     setNewGWD(prev => ({
       ...prev,
       afe_id: afeId,
-      system: selectedAFE?.system_id.toString() || '',
+      system: systemName,
       pipeline: '',
     }))
 
-    if (selectedAFE?.pipelines) {
-      setAvailablePipelines(selectedAFE.pipelines.map(p => p.pipeline))
+    if (selectedAFE.afe_pipelines && selectedAFE.afe_pipelines.length > 0) {
+      console.log('Setting pipelines:', selectedAFE.afe_pipelines.map(ap => ap.pipeline))
+      setAvailablePipelines(selectedAFE.afe_pipelines.map(ap => ap.pipeline))
     } else {
+      console.log('No pipelines found')
       setAvailablePipelines([])
     }
   }
@@ -175,7 +205,7 @@ export default function GWDCreate({ afes, onSuccess }: GWDCreateProps) {
             disabled={availablePipelines.length === 0}
           >
             <option value="">Select Pipeline</option>
-            {availablePipelines.map(pipeline => (
+            {availablePipelines && availablePipelines.map(pipeline => (
               <option key={pipeline.pipeline_id} value={pipeline.pipeline_name}>
                 {pipeline.pipeline_name}
               </option>

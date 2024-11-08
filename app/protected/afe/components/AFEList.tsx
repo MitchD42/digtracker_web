@@ -213,15 +213,15 @@ export default function AFEList({ afes = [], systems = [], onSelect }: AFEListPr
                   <p className="text-sm text-gray-500 mt-1">
                     System: {getSystemName(afe.system_id)}
                   </p>
-                  {afe.pipelines && afe.pipelines.length > 0 && (
+                  {afe.afe_pipelines && afe.afe_pipelines.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
-                      {afe.pipelines.map(pipeline => (
+                      {afe.afe_pipelines.map(afePipeline => (
                         <Badge 
-                          key={pipeline.pipeline_id} 
+                          key={afePipeline.afe_pipeline_id} 
                           variant="secondary"
                           className="text-xs"
                         >
-                          {pipeline.pipeline.pipeline_name}
+                          {afePipeline.pipeline.pipeline_name}
                         </Badge>
                       ))}
                     </div>

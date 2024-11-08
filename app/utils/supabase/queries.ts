@@ -53,31 +53,26 @@ export const getAFECostSummary = async (afeId: number): Promise<AFECostSummary> 
 export const getAFEs = async (): Promise<AFEWithPipelines[]> => {
   try {
     const supabase = await getSupabase()
-    const { data, error } = await supabase
+    
+    const { data: afes, error: afesError } = await supabase
       .from('afes')
       .select(`
         *,
-        pipelines:afe_pipelines!left (
+        afe_pipelines (
           afe_pipeline_id,
-          afe_id,
           pipeline_id,
           created_date,
-          pipeline:pipelines!left (
-            pipeline_id,
-            pipeline_name,
-            system_id,
-            created_date
-          )
+          pipeline:pipelines (*)
         )
       `)
       .order('created_date', { ascending: false })
 
-    if (error) {
-      console.log('No AFEs found:', error.message)
+    if (afesError) {
+      console.log('No AFEs found:', afesError.message)
       return []
     }
 
-    return data || []
+    return afes || []
   } catch (error) {
     console.log('Error fetching AFEs:', error)
     return []

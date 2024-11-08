@@ -18,7 +18,11 @@ export interface AFE {
 }
 
 export interface AFEWithPipelines extends AFE {
-  pipelines?: AFEPipeline[]
+  system?: {
+    system_id: number
+    system_name: string
+  }
+  afe_pipelines?: AFEPipeline[]
 }
 
 export interface GWD {
