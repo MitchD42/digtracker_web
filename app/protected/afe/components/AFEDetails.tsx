@@ -27,8 +27,8 @@ interface AFEDetailsProps {
   onUpdate: () => void
 }
 
-interface EditedAFE extends Omit<AFEWithPipelines, 'pipelines'> {
-  pipelines: AFEPipeline[]
+interface EditedAFE extends AFEWithPipelines {
+  afe_pipelines: AFEPipeline[]
 }
 
 export default function AFEDetails({ 
@@ -43,16 +43,16 @@ export default function AFEDetails({
   const [isEditing, setIsEditing] = useState(false)
   const [editedAFE, setEditedAFE] = useState<EditedAFE>({
     ...afe,
-    pipelines: afe.pipelines || []
+    afe_pipelines: afe.afe_pipelines || []
   })
   const [newPipeline, setNewPipeline] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   console.log('AFE Data:', {
     afe,
-    pipelines: afe.pipelines,
-    pipelinesType: typeof afe.pipelines,
-    isArray: Array.isArray(afe.pipelines)
+    afe_pipelines: afe.afe_pipelines,
+    pipelinesType: typeof afe.afe_pipelines,
+    isArray: Array.isArray(afe.afe_pipelines)
   })
 
   // Calculate totals
@@ -162,7 +162,7 @@ export default function AFEDetails({
 
         setEditedAFE(prev => ({
           ...prev,
-          pipelines: [...(prev.pipelines || []), newPipelineEntry]
+          afe_pipelines: [...(prev.afe_pipelines || []), newPipelineEntry]
         }))
         
         setNewPipeline('')
@@ -184,7 +184,7 @@ export default function AFEDetails({
 
       setEditedAFE(prev => ({
         ...prev,
-        pipelines: prev.pipelines?.filter(p => p.afe_pipeline_id !== afePipelineId) || []
+        afe_pipelines: prev.afe_pipelines?.filter(p => p.afe_pipeline_id !== afePipelineId) || []
       }))
     } catch (err) {
       console.error('Error removing pipeline:', err)
@@ -322,7 +322,7 @@ export default function AFEDetails({
                     />
                     <Button onClick={addPipeline} type="button">Add</Button>
                   </div>
-                  {editedAFE.pipelines?.map((pipelineEntry) => (
+                  {editedAFE.afe_pipelines?.map((pipelineEntry) => (
                     <div key={pipelineEntry.afe_pipeline_id} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
                       <span>{pipelineEntry.pipeline.pipeline_name}</span>
                       <Button variant="ghost" size="sm" onClick={() => removePipeline(pipelineEntry.afe_pipeline_id)}>
@@ -333,8 +333,13 @@ export default function AFEDetails({
                 </div>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {editedAFE.pipelines?.map((pipelineEntry) => (
-                    <Badge key={pipelineEntry.afe_pipeline_id} variant="secondary">{pipelineEntry.pipeline.pipeline_name}</Badge>
+                  {editedAFE.afe_pipelines?.map((pipelineEntry) => (
+                    <Badge 
+                      key={pipelineEntry.afe_pipeline_id} 
+                      variant="secondary"
+                    >
+                      {pipelineEntry.pipeline.pipeline_name}
+                    </Badge>
                   ))}
                 </div>
               )}
