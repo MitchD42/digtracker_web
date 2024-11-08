@@ -35,3 +35,41 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python
+/pythoncode/__pycache__/
+/pythoncode/*.pyc
+/pythoncode/*.pyo
+/pythoncode/*.pyd
+/pythoncode/.Python
+/pythoncode/env/
+/pythoncode/venv/
+/pythoncode/.env
+
+# IDE/Editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Project specific
+todo.md
+*.log
+.env.development
+.env.production
+.env.test
+
+# Database
+*.sqlite
+*.sqlite3
+*.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Build artifacts
+dist/
+build/

@@ -52,6 +52,23 @@ const config = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        // Add custom gradient colors
+        'gradient-blue': {
+          from: '#3b82f6',
+          to: '#2563eb',
+        },
+        'gradient-green': {
+          from: '#22c55e',
+          to: '#16a34a',
+        },
+        'gradient-yellow': {
+          from: '#eab308',
+          to: '#ca8a04',
+        },
+        'gradient-purple': {
+          from: '#a855f7',
+          to: '#9333ea',
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
