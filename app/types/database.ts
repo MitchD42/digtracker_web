@@ -53,6 +53,7 @@ export interface PurchaseOrder {
   initial_value: number
   status: 'Open' | 'Closed'
   created_date: string
+  notes: string | null
 }
 
 export interface ChangeOrder {

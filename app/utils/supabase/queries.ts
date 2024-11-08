@@ -85,7 +85,7 @@ export const getAFEs = async (): Promise<AFEWithPipelines[]> => {
 }
 
 // GWDs
-export const getGWDsForAFE = async (afeId: number): Promise<GWDWithAFE[]> => {
+export const getGWDsByAFE = async (afeId: number): Promise<GWDWithAFE[]> => {
   const supabase = await getSupabase()
   const { data, error } = await supabase
     .from('gwds')
@@ -94,10 +94,11 @@ export const getGWDsForAFE = async (afeId: number): Promise<GWDWithAFE[]> => {
       afe:afes (*)
     `)
     .eq('afe_id', afeId)
+    .order('gwd_number')
 
   if (error) throw error
   return data || []
-}
+};
 
 // Vendors
 export const getVendors = async (): Promise<Vendor[]> => {
@@ -112,20 +113,22 @@ export const getVendors = async (): Promise<Vendor[]> => {
 }
 
 // Purchase Orders
-export const getPurchaseOrdersForAFE = async (afeId: number): Promise<PurchaseOrderWithDetails[]> => {
+export const getPOsByAFE = async (afeId: number): Promise<PurchaseOrderWithDetails[]> => {
   const supabase = await getSupabase()
   const { data, error } = await supabase
     .from('purchase_orders')
     .select(`
       *,
       vendor:vendors (*),
+      afe:afes (*),
       change_orders (*)
     `)
     .eq('afe_id', afeId)
+    .order('created_date', { ascending: false })
 
   if (error) throw error
   return data || []
-}
+};
 
 // Change Orders
 export const getChangeOrdersForPO = async (poId: number): Promise<ChangeOrder[]> => {

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { POWithDetails, AFE, Vendor } from '@/types/database'
+import { POWithDetails, AFE, Vendor, ChangeOrder } from '@/types/database'
 import POCreate from './components/POCreate'
 import POList from './components/POList'
 import PODetails from './components/PODetails'
@@ -42,7 +42,7 @@ export default function POPage() {
       // Calculate total values including change orders
       const posWithTotals = poData.map(po => ({
         ...po,
-        total_value: po.initial_value + po.change_orders.reduce((sum, co) => sum + co.value, 0)
+        total_value: po.initial_value + po.change_orders.reduce((sum: number, co: ChangeOrder) => sum + co.value, 0)
       }))
 
       setPOs(posWithTotals)
