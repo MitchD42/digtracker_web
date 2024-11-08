@@ -18,7 +18,7 @@ export default function GWDList({ gwds, onSelect }: GWDListProps) {
   const [statusFilter, setStatusFilter] = useState<string>('all')
   const [systemFilter, setSystemFilter] = useState<string>('all')
   const [sortField, setSortField] = useState<SortField>('gwd_number')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
 
   // Get unique systems for filter
   const systems = Array.from(new Set(gwds.map(gwd => gwd.system).filter(Boolean)))

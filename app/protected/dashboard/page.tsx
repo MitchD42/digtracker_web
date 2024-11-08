@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { FileText, Clipboard, ShoppingCart, BarChart2, Activity, AlertTriangle } from 'lucide-react'
+import { FileText, Clipboard, ShoppingCart, BarChart2, Activity, Package } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
-import { AFE, GWDWithAFE, PurchaseOrder } from '@/types/database'
+import { AFE, GWDWithAFE, PurchaseOrder, Material } from '@/types/database'
 
 interface POData extends PurchaseOrder {
   change_orders: Array<{
@@ -28,7 +28,8 @@ export default function Dashboard() {
     totalPOCosts: 0,
     completedGWDs: 0,
     inProgressGWDs: 0,
-    totalRepairs: 0,
+    totalMaterials: 0,
+    totalMaterialCosts: 0,
     openPOs: 0,
     closedPOs: 0
   })
@@ -64,18 +65,21 @@ export default function Dashboard() {
           change_orders(*)
         `)
 
-      if (afes && gwds && pos) {
-        const totalRepairCount = gwds.reduce((sum: number, gwd: GWDWithAFE) => 
-          sum + (gwd.b_sleeve || 0) + (gwd.petro_sleeve || 0) + 
-          (gwd.composite || 0) + (gwd.recoat || 0), 0
-        )
+      // Add materials fetch
+      const { data: materials } = await supabase.from('materials').select('*')
 
+      if (afes && gwds && pos && materials) {
         const totalPOValue = pos.reduce((sum: number, po: POData) => {
           const changeOrderTotal = po.change_orders.reduce((coSum: number, co: { value: number }) => 
             coSum + (co.value || 0), 0
           )
           return sum + (po.initial_value || 0) + changeOrderTotal
         }, 0)
+
+        // Calculate material stats
+        const totalMaterialCosts = materials.reduce((sum: number, material: Material) => 
+          sum + (material.price || 0), 0
+        )
 
         setStats({
           afeCount: afes.length,
@@ -88,12 +92,13 @@ export default function Dashboard() {
           totalPOCosts: totalPOValue,
           completedGWDs: gwds.filter((gwd: GWDWithAFE) => gwd.status === 'Complete').length,
           inProgressGWDs: gwds.filter((gwd: GWDWithAFE) => gwd.status === 'In Progress').length,
-          totalRepairs: totalRepairCount,
+          totalMaterials: materials.length,
+          totalMaterialCosts,
           openPOs: pos.filter((po: POData) => po.status === 'Open').length,
           closedPOs: pos.filter((po: POData) => po.status === 'Closed').length
         })
 
-        // Get recent activity
+        // Get recent GWDs
         const recentGWDs = gwds
           .sort((a: GWDWithAFE, b: GWDWithAFE) => 
             new Date(b.created_date).getTime() - new Date(a.created_date).getTime()
@@ -101,10 +106,11 @@ export default function Dashboard() {
           .slice(0, 5)
           .map((gwd: GWDWithAFE) => ({
             type: 'GWD',
-            description: `GWD #${gwd.gwd_number} ${gwd.status}`,
+            description: `GWD ${gwd.gwd_number} - ${gwd.status}`,
             date: new Date(gwd.created_date).toLocaleDateString()
           }))
 
+        // Get recent POs
         const recentPOs = pos
           .sort((a: POData, b: POData) => 
             new Date(b.created_date).getTime() - new Date(a.created_date).getTime()
@@ -112,14 +118,29 @@ export default function Dashboard() {
           .slice(0, 5)
           .map((po: POData) => ({
             type: 'PO',
-            description: `PO #${po.po_number} ${po.status}`,
+            description: `PO ${po.po_number} - $${po.initial_value.toLocaleString()}`,
             date: new Date(po.created_date).toLocaleDateString()
           }))
 
-        // Combine and sort all recent activity
-        const allActivity = [...recentGWDs, ...recentPOs]
-          .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        // Get recent materials
+        const recentMaterials = materials
+          .sort((a: Material, b: Material) => 
+            new Date(b.created_date).getTime() - new Date(a.created_date).getTime()
+          )
           .slice(0, 5)
+          .map((material: Material) => ({
+            type: 'Material',
+            description: `Material added: $${material.price.toLocaleString()}`,
+            date: new Date(material.created_date).toLocaleDateString()
+          }))
+
+        // Combine all activity
+        const allActivity = [
+          ...recentGWDs, 
+          ...recentPOs, 
+          ...recentMaterials
+        ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+         .slice(0, 5)
 
         setRecentActivity(allActivity)
       }
@@ -144,11 +165,11 @@ export default function Dashboard() {
       color: 'from-green-500 to-green-600' 
     },
     { 
-      name: 'Total Repairs', 
-      icon: BarChart2, 
-      count: stats.totalRepairs,
-      subtext: 'Total repair count across all GWDs',
-      color: 'from-yellow-500 to-yellow-600' 
+      name: 'Materials', 
+      icon: Package, 
+      count: stats.totalMaterials,
+      subtext: `$${stats.totalMaterialCosts.toLocaleString()} total value`,
+      color: 'from-orange-500 to-orange-600' 
     },
     { 
       name: 'POs', 

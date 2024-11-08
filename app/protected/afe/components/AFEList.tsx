@@ -19,7 +19,7 @@ export default function AFEList({ afes = [], systems = [], onSelect }: AFEListPr
   const [statusFilter, setStatusFilter] = useState<'all' | AFEStatus>('all')
   const [systemFilter, setSystemFilter] = useState<number | 'all'>('all')
   const [sortField, setSortField] = useState<SortField>('afe_number')
-  const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
 
   const getSystemName = (systemId: number) => {
     if (!systems) return 'Unknown System'
@@ -89,8 +89,11 @@ export default function AFEList({ afes = [], systems = [], onSelect }: AFEListPr
   })
 
   // Calculate summary stats
-  const totalBudget = filteredAFEs.reduce((sum, afe) => sum + afe.budget, 0)
-  const totalCosts = filteredAFEs.reduce((sum, afe) => sum + afe.current_costs, 0)
+  const totalBudget = filteredAFEs.reduce((sum, afe) => sum + (afe.budget || 0), 0)
+  const totalCosts = filteredAFEs.reduce((sum, afe) => {
+    const afeCosts = afe.current_costs || 0
+    return sum + afeCosts
+  }, 0)
   const draftCount = filteredAFEs.filter(afe => afe.status === 'Draft').length
   const activeCount = filteredAFEs.filter(afe => afe.status === 'Active').length
 

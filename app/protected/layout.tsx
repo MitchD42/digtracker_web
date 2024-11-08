@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LayoutDashboard, FileText, Wrench, ShoppingCart, Database } from 'lucide-react'
+import { LayoutDashboard, FileText, Wrench, ShoppingCart, Database, Package } from 'lucide-react'
 
 export default function ProtectedLayout({
   children,
@@ -35,6 +35,13 @@ export default function ProtectedLayout({
               GWDs
             </Link>
             <Link 
+              href="/protected/material"
+              className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg"
+            >
+              <Package className="h-5 w-5 mr-3" />
+              Materials
+            </Link>
+            <Link 
               href="/protected/po"
               className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg"
             >
@@ -42,11 +49,11 @@ export default function ProtectedLayout({
               Purchase Orders
             </Link>
             <Link 
-              href="/protected/systems"
+              href="/protected/data"
               className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg"
             >
               <Database className="h-5 w-5 mr-3" />
-              Systems
+              Data
             </Link>
           </nav>
         </div>

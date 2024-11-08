@@ -151,4 +151,50 @@ export interface System {
   created_date: string
 }
 
-export type AFEStatus = 'Draft' | 'Active' | 'Complete' | 'Cancelled' 
+export type AFEStatus = 'Draft' | 'Active' | 'Complete' | 'Cancelled'
+
+export interface Material {
+  material_id: number
+  vendor_id: number
+  price: number
+  length: number | null
+  vendor_ref_id: string | null
+  notes: string | null
+  created_date: string
+  vendor: Vendor
+}
+
+export type RepairType = 'Recoat' | 'Petro-Sleeve' | 'B-Sleeve' | 'Composite'
+
+export interface ConstructionSupervisor {
+  cs_id: number
+  name: string
+  created_date: string
+}
+
+export interface CSWithDetails extends ConstructionSupervisor {
+  purchase_orders: (POWithDetails & {
+    cs_pos: CSPO  // Include the junction table data
+  })[]
+  gwds: (GWDWithAFE & {
+    cs_gwds: CSGWD  // Include the junction table data
+  })[]
+}
+
+export interface CSPO {
+  cs_po_id: number
+  cs_id: number
+  po_id: number
+  work_start: string
+  work_end: string
+  created_date: string
+}
+
+export interface CSGWD {
+  cs_gwd_id: number
+  cs_id: number
+  gwd_id: number
+  work_start: string
+  work_end: string
+  created_date: string
+}
