@@ -173,12 +173,22 @@ export interface ConstructionSupervisor {
 }
 
 export interface CSWithDetails extends ConstructionSupervisor {
-  purchase_orders: (POWithDetails & {
-    cs_pos: CSPO  // Include the junction table data
-  })[]
-  gwds: (GWDWithAFE & {
-    cs_gwds: CSGWD  // Include the junction table data
-  })[]
+  purchase_orders: {
+    cs_po_id: number
+    cs_id: number
+    po_id: number
+    work_start: string
+    work_end: string
+    po: POWithDetails
+  }[]
+  gwds: {
+    cs_gwd_id: number
+    cs_id: number
+    gwd_id: number
+    work_start: string
+    work_end: string
+    gwd: GWDWithAFE
+  }[]
 }
 
 export interface CSPO {

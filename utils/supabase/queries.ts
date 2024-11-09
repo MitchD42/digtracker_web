@@ -10,7 +10,8 @@ import {
   Vendor,
   ChangeOrder,
   AFEWithPipelines,
-  Material
+  Material,
+  CSWithDetails
 } from '@/types/database'
 
 // Create a single supabase client instance
@@ -225,6 +226,84 @@ export const getMaterials = async (): Promise<Material[]> => {
     return data || []
   } catch (error) {
     console.log('Error fetching materials:', error)
+    return []
+  }
+}
+
+// Construction Supervisors
+export const getConstructionSupervisors = async (): Promise<CSWithDetails[]> => {
+  try {
+    const supabase = await getSupabase()
+    const { data, error } = await supabase
+      .from('construction_supervisors')
+      .select(`
+        *,
+        purchase_orders:cs_pos!left (
+          cs_po_id,
+          cs_id,
+          po_id,
+          work_start,
+          work_end,
+          purchase_order:purchase_orders!left (
+            *,
+            vendor:vendors (*),
+            afe:afes (*),
+            change_orders (*)
+          )
+        ),
+        gwds:cs_gwds!left (
+          cs_gwd_id,
+          cs_id,
+          gwd_id,
+          work_start,
+          work_end,
+          gwd:gwds (*)
+        )
+      `)
+      .order('name')
+
+    if (error) {
+      console.log('No construction supervisors found:', error.message)
+      return []
+    }
+    
+    // Add new debug logging
+    if (data) {
+      data.forEach(cs => {
+        console.log(`CS ${cs.cs_id} POs:`, cs.purchase_orders);
+      });
+      
+      // Keep existing logging
+      console.log('All Supervisors:', data.map(cs => ({
+        cs_id: cs.cs_id,
+        name: cs.name,
+        cs_pos_count: cs.purchase_orders?.length || 0,
+        cs_gwds_count: cs.gwds?.length || 0
+      })));
+
+      // Log both CS 1 and 2 for comparison
+      const cs1 = data.find(cs => cs.cs_id === 1);
+      const cs2 = data.find(cs => cs.cs_id === 2);
+      
+      console.log('CS ID 1 Full Data:', JSON.stringify(cs1, null, 2));
+      console.log('CS ID 2 Full Data:', JSON.stringify(cs2, null, 2));
+      
+      if (cs2) {
+        console.log('CS ID 2 POs Detail:', cs2.purchase_orders?.map((po: {
+          cs_po_id: number;
+          po_id: number;
+          purchase_order: PurchaseOrderWithDetails;
+        }) => ({
+          cs_po_id: po.cs_po_id,
+          po_id: po.po_id,
+          po_number: po.purchase_order?.po_number
+        })));
+      }
+    }
+    
+    return data || []
+  } catch (error) {
+    console.log('Error fetching construction supervisors:', error)
     return []
   }
 } 

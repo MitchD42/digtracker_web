@@ -7,9 +7,9 @@ import { RefreshCcw, ListIcon, PlusCircle } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Material, Vendor } from '@/types/database'
-import MaterialList from './components/MaterialList'
-import MaterialDetails from './components/MaterialDetails'
-import MaterialCreate from './components/MaterialCreate'
+import MaterialList from './_components/MaterialList'
+import MaterialDetails from './_components/MaterialDetails'
+import MaterialCreate from './_components/MaterialCreate'
 import { getMaterials, getVendors } from '@/utils/supabase/queries'
 
 export default function MaterialPage() {

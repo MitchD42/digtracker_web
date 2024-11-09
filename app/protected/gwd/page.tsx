@@ -7,9 +7,9 @@ import { RefreshCcw } from 'lucide-react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { GWDWithAFE, AFE, System, AFEWithPipelines } from '@/types/database'
 import { createClient } from '@/utils/supabase/client'
-import GWDList from './components/GWDList'
-import GWDCreate from './components/GWDCreate'
-import GWDDetails from './components/GWDDetails'
+import GWDList from './_components/GWDList'
+import GWDCreate from './_components/GWDCreate'
+import GWDDetails from './_components/GWDDetails'
 
 export default function GWDPage() {
   const supabase = createClient()

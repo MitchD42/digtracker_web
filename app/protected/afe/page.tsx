@@ -7,9 +7,9 @@ import { RefreshCcw, ListIcon, PlusCircle } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { AFE, GWDWithAFE, PurchaseOrderWithDetails, System, AFEWithPipelines } from '@/types/database'
-import AFEList from './components/AFEList'
-import AFEDetails from './components/AFEDetails'
-import AFECreate from './components/AFECreate'
+import AFEList from './_components/AFEList'
+import AFEDetails from './_components/AFEDetails'
+import AFECreate from './_components/AFECreate'
 import { getAFEs, getSystems } from '@/utils/supabase/queries'
 
 export default function AFEPage() {
