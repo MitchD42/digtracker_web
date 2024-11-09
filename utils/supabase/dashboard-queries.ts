@@ -139,17 +139,28 @@ export async function getFinancialMetrics(): Promise<FinancialMetrics> {
 export async function getGWDMetrics(): Promise<GWDMetrics> {
   const supabase = createClient()
   
-  const { data: gwds } = await supabase
+  const { data: gwds, error } = await supabase
     .from('gwds')
-    .select(`
-      status,
-      afe:afes (
-        afe_number,
-        system:systems (
-          system_name
-        )
-      )
-    `)
+    .select('status')
+
+  if (error) {
+    console.error('Error fetching GWD metrics:', error)
+    return {
+      totalCount: 0,
+      statusCounts: {
+        Complete: 0,
+        'In Progress': 0,
+        Cancelled: 0,
+        'On Hold': 0,
+        'Not Started': 0,
+        'Waiting for CLEIR': 0,
+        Ready: 0,
+        'No Longer Mine': 0
+      }
+    }
+  }
+
+  console.log('Raw GWDs data:', gwds)
 
   const statusCounts = {
     Complete: 0,
@@ -163,8 +174,16 @@ export async function getGWDMetrics(): Promise<GWDMetrics> {
   }
 
   gwds?.forEach(gwd => {
-    statusCounts[gwd.status as keyof typeof statusCounts]++
+    // Access the status from the gwd object and check if it's a valid status
+    const status = gwd.status as keyof typeof statusCounts
+    if (status && Object.keys(statusCounts).includes(status)) {
+      statusCounts[status]++
+    } else {
+      console.warn('Unknown status:', gwd.status)
+    }
   })
+
+  console.log('Processed status counts:', statusCounts)
 
   return {
     totalCount: gwds?.length || 0,

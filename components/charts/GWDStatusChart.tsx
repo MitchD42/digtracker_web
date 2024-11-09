@@ -2,13 +2,36 @@
 
 import { GWDMetrics } from "@/utils/supabase/dashboard-queries"
 import { Bar } from "react-chartjs-2"
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js'
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+)
 
 interface GWDStatusChartProps {
   data?: GWDMetrics
 }
 
 export function GWDStatusChart({ data }: GWDStatusChartProps) {
-  if (!data) return null
+  console.log('GWDStatusChart received data:', data)
+  
+  if (!data) {
+    console.log('No data provided to GWDStatusChart')
+    return null
+  }
 
   const chartData = {
     labels: Object.keys(data.statusCounts),
@@ -28,10 +51,34 @@ export function GWDStatusChart({ data }: GWDStatusChartProps) {
     }]
   }
 
+  console.log('Chart data prepared:', chartData)
+
   return (
-    <Bar data={chartData} options={{
-      responsive: true,
-      maintainAspectRatio: false
-    }} />
+    <div style={{ height: '300px' }}>
+      <Bar 
+        data={chartData} 
+        options={{
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            title: {
+              display: true,
+              text: `GWDs by Status (Total: ${data.totalCount})`
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 1
+              }
+            }
+          }
+        }} 
+      />
+    </div>
   )
 } 
