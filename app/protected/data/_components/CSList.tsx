@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CSWithDetails, POWithDetails, GWDWithAFE } from '@/types/database'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
@@ -6,7 +6,6 @@ import { createClient } from '@/utils/supabase/client'
 import { PlusCircle, Pencil, Save, X, Plus, CalendarIcon } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { format } from 'date-fns'
-import { Calendar } from '@/components/ui/calendar'
 import {
   Dialog,
   DialogContent,
@@ -21,15 +20,34 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
+import { DatePicker } from '@/components/ui/date-picker'
+import { cn } from "@/lib/utils"
 
 interface CSListProps {
   supervisors: CSWithDetails[]
   onSupervisorsChange: () => void
+}
+
+function DatePickerWithInput({ 
+  selected, 
+  onSelect, 
+  label 
+}: { 
+  selected?: Date, 
+  onSelect: (date: Date | undefined) => void,
+  label: string 
+}) {
+  return (
+    <div className="flex-1">
+      <label className="text-sm font-medium mb-2 block">
+        {label}
+      </label>
+      <DatePicker
+        date={selected}
+        setDate={onSelect}
+      />
+    </div>
+  )
 }
 
 export default function CSList({ supervisors, onSupervisorsChange }: CSListProps) {
@@ -43,20 +61,26 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
   const [selectedCS, setSelectedCS] = useState<CSWithDetails | null>(null)
   const [selectedPO, setSelectedPO] = useState<string>('')
   const [selectedGWDs, setSelectedGWDs] = useState<number[]>([])
-  const [workStart, setWorkStart] = useState<Date>()
-  const [workEnd, setWorkEnd] = useState<Date>()
   const [isAddingPO, setIsAddingPO] = useState(false)
   const [isAddingGWD, setIsAddingGWD] = useState(false)
   const [availablePOs, setAvailablePOs] = useState<POWithDetails[]>([])
   const [availableGWDs, setAvailableGWDs] = useState<GWDWithAFE[]>([])
+  const [dates, setDates] = useState<{
+    [csId: number]: {
+      workStart?: Date;
+      workEnd?: Date;
+    };
+  }>({});
 
   // Filter CS based on search
-  const filteredCS = supervisors.filter(cs =>
-    cs.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    cs.purchase_orders?.some(po => 
-      po.po_number.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  )
+  const filteredCS = supervisors.filter(cs => {
+    const nameMatch = cs.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const poMatch = cs.purchase_orders?.some(po => {
+      if (!po || !po.po) return false;
+      return po.po.po_number?.toLowerCase().includes(searchTerm.toLowerCase());
+    });
+    return nameMatch || poMatch;
+  });
 
   const loadAvailablePOs = async () => {
     const { data, error } = await supabase
@@ -135,7 +159,8 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
   }
 
   const handleAddPO = async (csId: number, poId: number) => {
-    if (!workStart || !workEnd) {
+    const csDate = dates[csId] || {};
+    if (!csDate.workStart || !csDate.workEnd) {
       setError('Please select both start and end dates')
       return
     }
@@ -146,14 +171,16 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
         .insert([{ 
           cs_id: csId, 
           po_id: poId,
-          work_start: workStart.toISOString(),
-          work_end: workEnd.toISOString()
+          work_start: csDate.workStart.toISOString(),
+          work_end: csDate.workEnd.toISOString()
         }])
 
       if (insertError) throw insertError
 
-      setWorkStart(undefined)
-      setWorkEnd(undefined)
+      setDates(prev => ({
+        ...prev,
+        [csId]: { workStart: undefined, workEnd: undefined }
+      }))
       setSelectedPO('')
       setIsAddingPO(false)
       onSupervisorsChange()
@@ -163,7 +190,8 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
   }
 
   const handleAddGWDs = async (csId: number) => {
-    if (!workStart || !workEnd) {
+    const csDate = dates[csId] || {};
+    if (!csDate.workStart || !csDate.workEnd) {
       setError('Please select both start and end dates')
       return
     }
@@ -172,8 +200,8 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
       const gwdInserts = selectedGWDs.map(gwdId => ({
         cs_id: csId,
         gwd_id: gwdId,
-        work_start: workStart.toISOString(),
-        work_end: workEnd.toISOString()
+        work_start: csDate.workStart!.toISOString(),
+        work_end: csDate.workEnd!.toISOString()
       }))
 
       const { error: insertError } = await supabase
@@ -182,8 +210,10 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
 
       if (insertError) throw insertError
 
-      setWorkStart(undefined)
-      setWorkEnd(undefined)
+      setDates(prev => ({
+        ...prev,
+        [csId]: { workStart: undefined, workEnd: undefined }
+      }))
       setSelectedGWDs([])
       setIsAddingGWD(false)
       onSupervisorsChange()
@@ -223,6 +253,17 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
       setError(err instanceof Error ? err.message : 'Failed to remove GWD')
     }
   }
+
+  useEffect(() => {
+    console.log('Supervisors:', supervisors);
+  }, [supervisors]);
+
+  useEffect(() => {
+    if (supervisors.length > 0) {
+      console.log('First Supervisor Full Data:', JSON.stringify(supervisors[0], null, 2));
+      console.log('First PO Data:', JSON.stringify(supervisors[0].purchase_orders?.[0], null, 2));
+    }
+  }, [supervisors]);
 
   return (
     <div className="space-y-4">
@@ -345,51 +386,27 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
                             </SelectContent>
                           </Select>
                           <div className="flex gap-4">
-                            <div className="flex-1">
-                              <label className="text-sm font-medium mb-2 block">
-                                Work Start
-                              </label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {workStart ? format(workStart, 'PPP') : 'Pick a date'}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                  <Calendar
-                                    mode="single"
-                                    selected={workStart}
-                                    onSelect={setWorkStart}
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                            <div className="flex-1">
-                              <label className="text-sm font-medium mb-2 block">
-                                Work End
-                              </label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {workEnd ? format(workEnd, 'PPP') : 'Pick a date'}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                  <Calendar
-                                    mode="single"
-                                    selected={workEnd}
-                                    onSelect={setWorkEnd}
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
+                            <DatePickerWithInput
+                              selected={dates[cs.cs_id]?.workStart}
+                              onSelect={(date) => setDates(prev => ({
+                                ...prev,
+                                [cs.cs_id]: { ...prev[cs.cs_id], workStart: date }
+                              }))}
+                              label="Work Start"
+                            />
+                            <DatePickerWithInput
+                              selected={dates[cs.cs_id]?.workEnd}
+                              onSelect={(date) => setDates(prev => ({
+                                ...prev,
+                                [cs.cs_id]: { ...prev[cs.cs_id], workEnd: date }
+                              }))}
+                              label="Work End"
+                            />
                           </div>
                           <Button 
                             className="w-full"
                             onClick={() => handleAddPO(cs.cs_id, parseInt(selectedPO))}
-                            disabled={!selectedPO || !workStart || !workEnd}
+                            disabled={!selectedPO || !dates[cs.cs_id]?.workStart || !dates[cs.cs_id]?.workEnd}
                           >
                             Add PO
                           </Button>
@@ -434,51 +451,27 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
                             ))}
                           </div>
                           <div className="flex gap-4">
-                            <div className="flex-1">
-                              <label className="text-sm font-medium mb-2 block">
-                                Work Start
-                              </label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {workStart ? format(workStart, 'PPP') : 'Pick a date'}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                  <Calendar
-                                    mode="single"
-                                    selected={workStart}
-                                    onSelect={setWorkStart}
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
-                            <div className="flex-1">
-                              <label className="text-sm font-medium mb-2 block">
-                                Work End
-                              </label>
-                              <Popover>
-                                <PopoverTrigger asChild>
-                                  <Button variant="outline" className="w-full justify-start text-left font-normal">
-                                    <CalendarIcon className="mr-2 h-4 w-4" />
-                                    {workEnd ? format(workEnd, 'PPP') : 'Pick a date'}
-                                  </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                  <Calendar
-                                    mode="single"
-                                    selected={workEnd}
-                                    onSelect={setWorkEnd}
-                                  />
-                                </PopoverContent>
-                              </Popover>
-                            </div>
+                            <DatePickerWithInput
+                              selected={dates[cs.cs_id]?.workStart}
+                              onSelect={(date) => setDates(prev => ({
+                                ...prev,
+                                [cs.cs_id]: { ...prev[cs.cs_id], workStart: date }
+                              }))}
+                              label="Work Start"
+                            />
+                            <DatePickerWithInput
+                              selected={dates[cs.cs_id]?.workEnd}
+                              onSelect={(date) => setDates(prev => ({
+                                ...prev,
+                                [cs.cs_id]: { ...prev[cs.cs_id], workEnd: date }
+                              }))}
+                              label="Work End"
+                            />
                           </div>
                           <Button 
                             className="w-full"
                             onClick={() => handleAddGWDs(cs.cs_id)}
-                            disabled={selectedGWDs.length === 0 || !workStart || !workEnd}
+                            disabled={selectedGWDs.length === 0 || !dates[cs.cs_id]?.workStart || !dates[cs.cs_id]?.workEnd}
                           >
                             Add Selected GWDs
                           </Button>
@@ -504,23 +497,32 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
               <div>
                 <h4 className="text-sm font-medium mb-2">Purchase Orders:</h4>
                 <div className="flex flex-wrap gap-2">
-                  {cs.purchase_orders.map(po => (
-                    <Badge
-                      key={po.po_id}
-                      variant="secondary"
-                      className="flex items-center gap-1"
-                    >
-                      {po.po_number}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-4 w-4 p-0 hover:bg-transparent"
-                        onClick={() => handleRemovePO(cs.cs_id, po.po_id)}
+                  {cs.purchase_orders.map(poData => {
+                    console.log('PO Data:', poData);
+                    
+                    if (!poData.po) {
+                      console.log('Missing po data for:', poData);
+                      return null;
+                    }
+
+                    return (
+                      <Badge
+                        key={poData.cs_po_id}
+                        variant="secondary"
+                        className="flex items-center gap-1"
                       >
-                        <X className="h-3 w-3" />
-                      </Button>
-                    </Badge>
-                  ))}
+                        {poData.po.po_number}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-4 w-4 p-0 hover:bg-transparent"
+                          onClick={() => handleRemovePO(cs.cs_id, poData.po_id)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </Badge>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -529,18 +531,18 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
               <div className="mt-2">
                 <h4 className="text-sm font-medium mb-2">GWDs:</h4>
                 <div className="flex flex-wrap gap-2">
-                  {cs.gwds.map(gwd => (
+                  {cs.gwds.map(gwdData => (
                     <Badge
-                      key={gwd.gwd_id}
+                      key={gwdData.cs_gwd_id}
                       variant="secondary"
                       className="flex items-center gap-1"
                     >
-                      GWD #{gwd.gwd_number}
+                      {`GWD ${gwdData.gwd.gwd_number}`}
                       <Button
                         variant="ghost"
                         size="sm"
                         className="h-4 w-4 p-0 hover:bg-transparent"
-                        onClick={() => handleRemoveGWD(cs.cs_id, gwd.gwd_id)}
+                        onClick={() => handleRemoveGWD(cs.cs_id, gwdData.gwd_id)}
                       >
                         <X className="h-3 w-3" />
                       </Button>
