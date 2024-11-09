@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { RefreshCcw, Database, Users, HardHat } from 'lucide-react'
@@ -22,30 +22,44 @@ export default function DataPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const loadData = async () => {
-    setIsLoading(true)
-    try {
-      switch (dataType) {
-        case 'systems':
-          const { data: systemsData, error: systemsError } = await supabase
+  const dataCategories = useMemo(() => [
+    {
+      id: 'systems',
+      name: 'Systems',
+      icon: Database,
+      color: 'from-blue-500 to-blue-600',
+      count: systems.length
+    },
+    {
+      id: 'vendors',
+      name: 'Vendors',
+      icon: Users,
+      color: 'from-green-500 to-green-600',
+      count: vendors.length
+    },
+    {
+      id: 'construction-supervisors',
+      name: 'Construction Supervisors',
+      icon: HardHat,
+      color: 'from-purple-500 to-purple-600',
+      count: supervisors.length
+    }
+  ], [systems.length, vendors.length, supervisors.length])
+
+  useEffect(() => {
+    const loadAllData = async () => {
+      setIsLoading(true)
+      try {
+        const [systemsRes, vendorsRes, csRes] = await Promise.all([
+          supabase
             .from('systems')
             .select('*')
-            .order('system_name')
-          if (systemsError) throw systemsError
-          setSystems(systemsData)
-          break
-
-        case 'vendors':
-          const { data: vendorsData, error: vendorsError } = await supabase
+            .order('system_name'),
+          supabase
             .from('vendors')
             .select('*')
-            .order('vendor_name')
-          if (vendorsError) throw vendorsError
-          setVendors(vendorsData)
-          break
-
-        case 'construction-supervisors':
-          const { data: csData, error: csError } = await supabase
+            .order('vendor_name'),
+          supabase
             .from('construction_supervisors')
             .select(`
               *,
@@ -76,10 +90,76 @@ export default function DataPage() {
               )
             `)
             .order('name')
-          if (csError) throw csError
-          setSupervisors(csData)
-          break
+        ])
+
+        if (systemsRes.error) throw systemsRes.error
+        if (vendorsRes.error) throw vendorsRes.error
+        if (csRes.error) throw csRes.error
+
+        setSystems(systemsRes.data)
+        setVendors(vendorsRes.data)
+        setSupervisors(csRes.data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load data')
       }
+      setIsLoading(false)
+    }
+
+    loadAllData()
+  }, [])
+
+  const loadData = async () => {
+    setIsLoading(true)
+    try {
+      const [systemsRes, vendorsRes, csRes] = await Promise.all([
+        supabase
+          .from('systems')
+          .select('*')
+          .order('system_name'),
+        supabase
+          .from('vendors')
+          .select('*')
+          .order('vendor_name'),
+        supabase
+          .from('construction_supervisors')
+          .select(`
+            *,
+            purchase_orders: cs_pos!cs_id (
+              po:purchase_orders (
+                *,
+                vendor:vendors (*),
+                change_orders (*)
+              ),
+              cs_po_id,
+              cs_id,
+              po_id,
+              work_start,
+              work_end,
+              created_date
+            ),
+            gwds: cs_gwds!cs_id (
+              gwd:gwds (
+                *,
+                afe:afes (*)
+              ),
+              cs_gwd_id,
+              cs_id,
+              gwd_id,
+              work_start,
+              work_end,
+              created_date
+            )
+          `)
+          .order('name')
+      ])
+
+      if (systemsRes.error) throw systemsRes.error
+      if (vendorsRes.error) throw vendorsRes.error
+      if (csRes.error) throw csRes.error
+
+      setSystems(systemsRes.data)
+      setVendors(vendorsRes.data)
+      setSupervisors(csRes.data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load data')
     }
@@ -88,31 +168,7 @@ export default function DataPage() {
 
   useEffect(() => {
     loadData()
-  }, [dataType])
-
-  const dataCategories = [
-    {
-      id: 'systems',
-      name: 'Systems',
-      icon: Database,
-      color: 'from-blue-500 to-blue-600',
-      count: systems.length
-    },
-    {
-      id: 'vendors',
-      name: 'Vendors',
-      icon: Users,
-      color: 'from-green-500 to-green-600',
-      count: vendors.length
-    },
-    {
-      id: 'construction-supervisors',
-      name: 'Construction Supervisors',
-      icon: HardHat,
-      color: 'from-purple-500 to-purple-600',
-      count: supervisors.length
-    }
-  ]
+  }, [])
 
   return (
     <div className="p-6">

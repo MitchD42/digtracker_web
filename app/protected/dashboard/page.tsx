@@ -41,13 +41,13 @@ interface FinancialMetric {
 export default function Dashboard() {
   const supabase = createClient()
   const [metrics, setMetrics] = useState<{
-    financial: FinancialMetrics | null
-    gwdStatus: GWDMetrics | null
-    alerts: CriticalAlerts | null
+    financial: FinancialMetrics | undefined
+    gwdStatus: GWDMetrics | undefined
+    alerts: CriticalAlerts | undefined
   }>({
-    financial: null,
-    gwdStatus: null,
-    alerts: null
+    financial: undefined,
+    gwdStatus: undefined,
+    alerts: undefined
   })
 
   useEffect(() => {
@@ -163,7 +163,7 @@ export default function Dashboard() {
             <CardTitle>GWD Status Overview</CardTitle>
           </CardHeader>
           <CardContent>
-            <GWDStatusChart /> {/* Pie or bar chart showing GWD statuses */}
+            <GWDStatusChart data={metrics.gwdStatus} />
           </CardContent>
         </Card>
 
@@ -172,7 +172,7 @@ export default function Dashboard() {
             <CardTitle>Budget Utilization</CardTitle>
           </CardHeader>
           <CardContent>
-            <BudgetChart /> {/* Bar chart showing budget vs actual by AFE */}
+            <BudgetChart data={metrics.financial} />
           </CardContent>
         </Card>
       </div>
