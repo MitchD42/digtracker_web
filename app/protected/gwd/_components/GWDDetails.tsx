@@ -16,7 +16,35 @@ interface GWDDetailsProps {
 type GWDStatus = 'Complete' | 'In Progress' | 'Cancelled' | 'On Hold' | 'Not Started' | 'Waiting for CLEIR' | 'Ready' | 'No Longer Mine'
 
 interface EditableGWD extends Omit<GWDWithAFE, 'status'> {
-  status: GWDStatus
+  status: GWDStatus;
+  execution_year?: number | null;
+  dig_name?: string | null;
+  inspection_provider?: string | null;
+  ili_analysis?: string | null;
+  dig_criteria?: string | null;
+  inspection_start_relative?: number | null;
+  inspection_end_relative?: number | null;
+  inspection_length?: number | null;
+  target_features?: string | null;
+  smys?: number | null;
+  mop?: number | null;
+  design_factor?: number | null;
+  class_location?: number | null;
+  class_location_factor?: number | null;
+  p_failure?: number | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  program_engineer?: string | null;
+  program_engineer_comments?: string | null;
+  project_engineer?: string | null;
+  post_execution_comments?: string | null;
+  last_updated?: string | null;
+  created_by?: string | null;
+  inspection_completion_date?: string | null;
+  actual_inspection_start?: number | null;
+  actual_inspection_start_relative?: number | null;
+  actual_inspection_end_relative?: number | null;
+  actual_inspection_length?: number | null;
 }
 
 export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) {
@@ -38,7 +66,10 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
           petro_sleeve: editedGWD.petro_sleeve,
           composite: editedGWD.composite,
           recoat: editedGWD.recoat,
-          notes: editedGWD.notes
+          notes: editedGWD.notes,
+          execution_year: editedGWD.execution_year,
+          dig_name: editedGWD.dig_name,
+          inspection_provider: editedGWD.inspection_provider,
         })
         .eq('gwd_id', gwd.gwd_id)
 

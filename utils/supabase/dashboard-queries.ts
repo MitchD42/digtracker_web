@@ -26,6 +26,8 @@ interface GWD {
   status: string
   land_cost: number
   dig_cost: number
+  execution_year?: number
+  inspection_completion_date?: string
   afe: {
     afe_number: string
     system: {

@@ -23,7 +23,10 @@ export default function GWDPage() {
     try {
       const { data, error } = await supabase
         .from('gwds')
-        .select('*, afe:afes(*)')
+        .select(`
+          *,
+          afe:afes(*)
+        `)
         .order('created_date', { ascending: false })
       
       if (error) throw error

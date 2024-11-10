@@ -213,14 +213,11 @@ export default function GWDList({ gwds, onSelect }: GWDListProps) {
                   <p className={`text-sm ${isOverBudget ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'}`}>
                     Total Cost: ${totalCost.toLocaleString()}
                   </p>
-                  {(gwd.b_sleeve > 0 || gwd.petro_sleeve > 0 || gwd.composite > 0 || gwd.recoat > 0) && (
-                    <div className="text-sm text-gray-500 mt-1">
-                      {gwd.b_sleeve > 0 && `B-Sleeve: ${gwd.b_sleeve} `}
-                      {gwd.petro_sleeve > 0 && `Petro: ${gwd.petro_sleeve} `}
-                      {gwd.composite > 0 && `Comp: ${gwd.composite} `}
-                      {gwd.recoat > 0 && `Recoat: ${gwd.recoat}`}
-                    </div>
-                  )}
+                  <div className="text-sm text-gray-500 mt-1">
+                    {gwd.dig_name && `Dig: ${gwd.dig_name} • `}
+                    {gwd.execution_year && `Year: ${gwd.execution_year} • `}
+                    {gwd.inspection_provider && `Inspector: ${gwd.inspection_provider}`}
+                  </div>
                 </div>
               </div>
             </div>

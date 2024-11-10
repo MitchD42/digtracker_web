@@ -27,6 +27,9 @@ interface NewGWD {
   composite: string
   recoat: string
   notes: string
+  execution_year?: string
+  dig_name?: string
+  inspection_provider?: string
 }
 
 export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) {
@@ -44,7 +47,10 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
     petro_sleeve: '0',
     composite: '0',
     recoat: '0',
-    notes: ''
+    notes: '',
+    execution_year: '',
+    dig_name: '',
+    inspection_provider: ''
   })
 
   const [availablePipelines, setAvailablePipelines] = useState<Pipeline[]>([])
@@ -127,7 +133,10 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
           petro_sleeve: parseInt(newGWD.petro_sleeve) || 0,
           composite: parseInt(newGWD.composite) || 0,
           recoat: parseInt(newGWD.recoat) || 0,
-          notes: newGWD.notes || null
+          notes: newGWD.notes || null,
+          execution_year: newGWD.execution_year,
+          dig_name: newGWD.dig_name,
+          inspection_provider: newGWD.inspection_provider
         })
 
       if (error) throw error
@@ -146,7 +155,10 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
         petro_sleeve: '0',
         composite: '0',
         recoat: '0',
-        notes: ''
+        notes: '',
+        execution_year: '',
+        dig_name: '',
+        inspection_provider: ''
       })
       onSuccess()
       alert('GWD created successfully!')

@@ -27,6 +27,7 @@ export interface AFEWithPipelines extends AFE {
 
 export interface GWD {
   gwd_id: number
+  digtracker_id: number | null
   gwd_number: number
   afe_id: number | null
   system: string | null
@@ -41,6 +42,34 @@ export interface GWD {
   composite: number
   recoat: number
   created_date: string
+  execution_year?: number | null
+  dig_name?: string | null
+  inspection_provider?: string | null
+  ili_analysis?: string | null
+  dig_criteria?: string | null
+  inspection_start_relative?: number | null
+  inspection_end_relative?: number | null
+  inspection_length?: number | null
+  target_features?: string | null
+  smys?: number | null
+  mop?: number | null
+  design_factor?: number | null
+  class_location?: number | null
+  class_location_factor?: number | null
+  p_failure?: number | null
+  latitude?: number | null
+  longitude?: number | null
+  program_engineer?: string | null
+  program_engineer_comments?: string | null
+  project_engineer?: string | null
+  post_execution_comments?: string | null
+  last_updated?: string | null
+  created_by?: string | null
+  inspection_completion_date?: string | null
+  actual_inspection_start?: number | null
+  actual_inspection_start_relative?: number | null
+  actual_inspection_end_relative?: number | null
+  actual_inspection_length?: number | null
 }
 
 export interface Vendor {
@@ -207,4 +236,10 @@ export interface CSGWD {
   work_start: string
   work_end: string
   created_date: string
+}
+
+export interface GWDImport extends Omit<GWD, 'gwd_id'> {
+  gwd_id?: number;
+  import_date?: string;
+  sync_status?: 'pending' | 'processed' | 'error';
 }

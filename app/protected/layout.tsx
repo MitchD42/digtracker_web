@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LayoutDashboard, FileText, Wrench, ShoppingCart, Database, Package } from 'lucide-react'
+import { LayoutDashboard, FileText, Wrench, ShoppingCart, Database, Package, Upload } from 'lucide-react'
 
 export default function ProtectedLayout({
   children,
@@ -54,6 +54,13 @@ export default function ProtectedLayout({
             >
               <Database className="h-5 w-5 mr-3" />
               Data
+            </Link>
+            <Link 
+              href="/protected/import"
+              className="flex items-center px-4 py-2 text-gray-300 hover:bg-gray-800 rounded-lg"
+            >
+              <Upload className="h-5 w-5 mr-3" />
+              Import/Export
             </Link>
           </nav>
         </div>
