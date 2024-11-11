@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createClient } from '@/utils/supabase/client'
-import { X, Edit2, Save } from 'lucide-react'
+import { X, Edit2, Save, ChevronDown, ChevronUp } from 'lucide-react'
 
 interface GWDDetailsProps {
   gwd: GWDWithAFE
@@ -51,6 +51,7 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
   const supabase = createClient()
   const [isEditing, setIsEditing] = useState(false)
   const [editedGWD, setEditedGWD] = useState<EditableGWD>(gwd)
+  const [showFullDetails, setShowFullDetails] = useState(false)
 
   const handleSave = async () => {
     try {
@@ -70,6 +71,24 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
           execution_year: editedGWD.execution_year,
           dig_name: editedGWD.dig_name,
           inspection_provider: editedGWD.inspection_provider,
+          ili_analysis: editedGWD.ili_analysis,
+          dig_criteria: editedGWD.dig_criteria,
+          inspection_start_relative: editedGWD.inspection_start_relative,
+          inspection_end_relative: editedGWD.inspection_end_relative,
+          inspection_length: editedGWD.inspection_length,
+          target_features: editedGWD.target_features,
+          smys: editedGWD.smys,
+          mop: editedGWD.mop,
+          design_factor: editedGWD.design_factor,
+          class_location: editedGWD.class_location,
+          class_location_factor: editedGWD.class_location_factor,
+          p_failure: editedGWD.p_failure,
+          latitude: editedGWD.latitude,
+          longitude: editedGWD.longitude,
+          program_engineer: editedGWD.program_engineer,
+          program_engineer_comments: editedGWD.program_engineer_comments,
+          project_engineer: editedGWD.project_engineer,
+          post_execution_comments: editedGWD.post_execution_comments,
         })
         .eq('gwd_id', gwd.gwd_id)
 
@@ -269,6 +288,291 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
           )}
         </CardContent>
       </Card>
+
+      <Button
+        variant="outline"
+        onClick={() => setShowFullDetails(!showFullDetails)}
+        className="w-full"
+      >
+        {showFullDetails ? (
+          <>
+            <ChevronUp className="h-4 w-4 mr-2" />
+            Hide Full Details
+          </>
+        ) : (
+          <>
+            <ChevronDown className="h-4 w-4 mr-2" />
+            Show Full Details
+          </>
+        )}
+      </Button>
+
+      {showFullDetails && (
+        <div className="grid grid-cols-2 gap-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Inspection Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Inspection Provider</Label>
+                {isEditing ? (
+                  <Input
+                    value={editedGWD.inspection_provider || ''}
+                    onChange={e => setEditedGWD(prev => ({
+                      ...prev,
+                      inspection_provider: e.target.value
+                    }))}
+                  />
+                ) : (
+                  <p className="text-lg">{editedGWD.inspection_provider || 'N/A'}</p>
+                )}
+              </div>
+
+              <div>
+                <Label>Inspection Completion Date</Label>
+                {isEditing ? (
+                  <Input
+                    type="date"
+                    value={editedGWD.inspection_completion_date || ''}
+                    onChange={e => setEditedGWD(prev => ({
+                      ...prev,
+                      inspection_completion_date: e.target.value
+                    }))}
+                  />
+                ) : (
+                  <p className="text-lg">{editedGWD.inspection_completion_date || 'N/A'}</p>
+                )}
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Planned Start (m)</Label>
+                  <p className="text-lg">{editedGWD.inspection_start_relative || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label>Planned End (m)</Label>
+                  <p className="text-lg">{editedGWD.inspection_end_relative || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label>Planned Length (m)</Label>
+                  <p className="text-lg">{editedGWD.inspection_length || 'N/A'}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Actual Start</Label>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={editedGWD.actual_inspection_start || ''}
+                      onChange={e => setEditedGWD(prev => ({
+                        ...prev,
+                        actual_inspection_start: parseFloat(e.target.value)
+                      }))}
+                    />
+                  ) : (
+                    <p className="text-lg">{editedGWD.actual_inspection_start || 'N/A'}</p>
+                  )}
+                </div>
+                <div>
+                  <Label>Actual Start Relative (m)</Label>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={editedGWD.actual_inspection_start_relative || ''}
+                      onChange={e => setEditedGWD(prev => ({
+                        ...prev,
+                        actual_inspection_start_relative: parseFloat(e.target.value)
+                      }))}
+                    />
+                  ) : (
+                    <p className="text-lg">{editedGWD.actual_inspection_start_relative || 'N/A'}</p>
+                  )}
+                </div>
+                <div>
+                  <Label>Actual End Relative (m)</Label>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={editedGWD.actual_inspection_end_relative || ''}
+                      onChange={e => setEditedGWD(prev => ({
+                        ...prev,
+                        actual_inspection_end_relative: parseFloat(e.target.value)
+                      }))}
+                    />
+                  ) : (
+                    <p className="text-lg">{editedGWD.actual_inspection_end_relative || 'N/A'}</p>
+                  )}
+                </div>
+                <div>
+                  <Label>Actual Length (m)</Label>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={editedGWD.actual_inspection_length || ''}
+                      onChange={e => setEditedGWD(prev => ({
+                        ...prev,
+                        actual_inspection_length: parseFloat(e.target.value)
+                      }))}
+                    />
+                  ) : (
+                    <p className="text-lg">{editedGWD.actual_inspection_length || 'N/A'}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Technical Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>SMYS</Label>
+                  <p className="text-lg">{editedGWD.smys || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label>MOP</Label>
+                  <p className="text-lg">{editedGWD.mop || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label>Design Factor</Label>
+                  <p className="text-lg">{editedGWD.design_factor || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label>Class Location</Label>
+                  <p className="text-lg">{editedGWD.class_location || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label>Class Location Factor</Label>
+                  <p className="text-lg">{editedGWD.class_location_factor || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label>P-Failure</Label>
+                  <p className="text-lg">{editedGWD.p_failure || 'N/A'}</p>
+                </div>
+              </div>
+
+              <div>
+                <Label>Target Features</Label>
+                <p className="text-lg">{editedGWD.target_features || 'N/A'}</p>
+              </div>
+
+              <div>
+                <Label>Dig Criteria</Label>
+                <p className="text-lg">{editedGWD.dig_criteria || 'N/A'}</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Location & Cost Details</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Latitude</Label>
+                  <p className="text-lg">{editedGWD.latitude || 'N/A'}</p>
+                </div>
+                <div>
+                  <Label>Longitude</Label>
+                  <p className="text-lg">{editedGWD.longitude || 'N/A'}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Land Cost</Label>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={editedGWD.land_cost || ''}
+                      onChange={e => setEditedGWD(prev => ({
+                        ...prev,
+                        land_cost: parseFloat(e.target.value)
+                      }))}
+                    />
+                  ) : (
+                    <p className="text-lg">${editedGWD.land_cost?.toLocaleString() || 'N/A'}</p>
+                  )}
+                </div>
+                <div>
+                  <Label>Dig Cost</Label>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={editedGWD.dig_cost || ''}
+                      onChange={e => setEditedGWD(prev => ({
+                        ...prev,
+                        dig_cost: parseFloat(e.target.value)
+                      }))}
+                    />
+                  ) : (
+                    <p className="text-lg">${editedGWD.dig_cost?.toLocaleString() || 'N/A'}</p>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Personnel & Comments</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Program Engineer</Label>
+                <p className="text-lg">{editedGWD.program_engineer || 'N/A'}</p>
+              </div>
+
+              <div>
+                <Label>Program Engineer Comments</Label>
+                <p className="text-lg">{editedGWD.program_engineer_comments || 'N/A'}</p>
+              </div>
+
+              <div>
+                <Label>Project Engineer</Label>
+                {isEditing ? (
+                  <Input
+                    value={editedGWD.project_engineer || ''}
+                    onChange={e => setEditedGWD(prev => ({
+                      ...prev,
+                      project_engineer: e.target.value
+                    }))}
+                  />
+                ) : (
+                  <p className="text-lg">{editedGWD.project_engineer || 'N/A'}</p>
+                )}
+              </div>
+
+              <div>
+                <Label>Post Execution Comments</Label>
+                {isEditing ? (
+                  <Input
+                    value={editedGWD.post_execution_comments || ''}
+                    onChange={e => setEditedGWD(prev => ({
+                      ...prev,
+                      post_execution_comments: e.target.value
+                    }))}
+                  />
+                ) : (
+                  <p className="text-lg">{editedGWD.post_execution_comments || 'N/A'}</p>
+                )}
+              </div>
+
+              <div>
+                <Label>Last Updated</Label>
+                <p className="text-lg">{editedGWD.last_updated || 'N/A'}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   )
 } 

@@ -10,6 +10,7 @@ import { createClient } from '@/utils/supabase/client'
 import GWDList from './_components/GWDList'
 import GWDCreate from './_components/GWDCreate'
 import GWDDetails from './_components/GWDDetails'
+import GWDMassEdit from './_components/GWDMassEdit'
 
 export default function GWDPage() {
   const supabase = createClient()
@@ -110,12 +111,13 @@ export default function GWDPage() {
           </div>
           
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mt-4">
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="list">GWD List</TabsTrigger>
               <TabsTrigger value="create">Create GWD</TabsTrigger>
               <TabsTrigger value="details" disabled={!selectedGWD}>
                 GWD Details
               </TabsTrigger>
+              <TabsTrigger value="mass-edit">Mass Edit</TabsTrigger>
             </TabsList>
 
             <TabsContent value="list">
@@ -147,6 +149,14 @@ export default function GWDPage() {
                   onUpdate={refreshGWDs}
                 />
               )}
+            </TabsContent>
+
+            <TabsContent value="mass-edit">
+              <GWDMassEdit 
+                gwds={gwds}
+                afes={afes}
+                onUpdate={refreshGWDs}
+              />
             </TabsContent>
           </Tabs>
         </CardHeader>

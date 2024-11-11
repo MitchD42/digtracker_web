@@ -23,44 +23,7 @@ export class ImportHandler {
     if (field === '_ignore_') return undefined
     if (value === '') return field === 'status' ? 'Not Started' : null
 
-    if (field === 'status') {
-      // These are the valid status values that match our database enum
-      const validStatuses = [
-        'Complete',
-        'Cancelled',
-        'Not Started',
-        'Ready',
-        'On Hold',
-        'Waiting for CLEIR'
-      ];
-
-      // If the status is already valid, return it as-is
-      if (validStatuses.includes(value)) {
-        return value;
-      }
-
-      // Only transform non-standard status values
-      const statusMap: { [key: string]: GWD['status'] } = {
-        'CLEIR Approved': 'Ready',
-        'Dig Cancelled': 'Cancelled',
-        'Dig Completed': 'Complete',
-        'Dig Postponed': 'On Hold',
-        'Dig Report Received': 'Complete',
-        'Site Selected': 'Not Started',
-        'With CLEIR': 'Waiting for CLEIR'
-      }
-
-      const mappedStatus = statusMap[value];
-      if (mappedStatus) {
-        return mappedStatus;
-      }
-
-      // Log unknown status values
-      console.warn(`Unknown status value "${value}" defaulting to "Not Started"`);
-      return 'Not Started';
-    }
-
-    return value
+    return transformValue(value, field)
   }
 
   private convertImportToGWD(importedGWD: GWDImport): Partial<GWD> {

@@ -2,8 +2,17 @@ import { GWDWithAFE } from '@/types/database'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
-import { ArrowUpDown, AlertTriangle } from 'lucide-react'
+import { ArrowUpDown, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+} from "@/components/ui/command"
+import { X, Check } from 'lucide-react'
+import { cn } from "@/lib/utils"
 
 interface GWDListProps {
   gwds: GWDWithAFE[]
@@ -13,15 +22,53 @@ interface GWDListProps {
 type SortField = 'gwd_number' | 'status' | 'initial_budget' | 'total_cost'
 type SortDirection = 'asc' | 'desc'
 
+const FilterButtonGroup = ({ 
+  options, 
+  selected, 
+  onChange,
+  label 
+}: { 
+  options: string[]
+  selected: string[]
+  onChange: (value: string[]) => void
+  label: string
+}) => {
+  return (
+    <div className="space-y-2">
+      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</h3>
+      <div className="flex flex-wrap gap-2">
+        {options.map((option) => (
+          <Button
+            key={option}
+            variant={selected.includes(option) ? "default" : "outline"}
+            size="sm"
+            onClick={() => {
+              onChange(
+                selected.includes(option)
+                  ? selected.filter(item => item !== option)
+                  : [...selected, option]
+              )
+            }}
+            className="whitespace-nowrap"
+          >
+            {option}
+          </Button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function GWDList({ gwds, onSelect }: GWDListProps) {
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-  const [systemFilter, setSystemFilter] = useState<string>('all')
+  const [statusFilters, setStatusFilters] = useState<string[]>([])
+  const [systemFilters, setSystemFilters] = useState<string[]>([])
   const [sortField, setSortField] = useState<SortField>('gwd_number')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
+  const [showFilters, setShowFilters] = useState(false)
 
   // Get unique systems for filter
-  const systems = Array.from(new Set(gwds.map(gwd => gwd.system).filter(Boolean)))
+  const systems = Array.from(new Set(gwds.map(gwd => gwd.system).filter((system): system is string => system !== null)))
 
   // Filter GWDs
   const filteredGWDs = gwds.filter(gwd => {
@@ -31,8 +78,8 @@ export default function GWDList({ gwds, onSelect }: GWDListProps) {
       gwd.pipeline?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       gwd.afe?.afe_number.toLowerCase().includes(searchTerm.toLowerCase())
 
-    const matchesStatus = statusFilter === 'all' || gwd.status === statusFilter
-    const matchesSystem = systemFilter === 'all' || gwd.system === systemFilter
+    const matchesStatus = statusFilters.length === 0 || statusFilters.includes(gwd.status || '')
+    const matchesSystem = systemFilters.length === 0 || systemFilters.includes(gwd.system || '')
 
     return matchesSearch && matchesStatus && matchesSystem
   })
@@ -74,42 +121,57 @@ export default function GWDList({ gwds, onSelect }: GWDListProps) {
     }
   }
 
+  const STATUS_OPTIONS = [
+    "Ready",
+    "Cancelled",
+    "Complete",
+    "On Hold",
+    "Not Started",
+    "Waiting for CLEIR"
+  ]
+
   return (
     <div className="space-y-4">
-      {/* Search and Filters */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <Input
-          placeholder="Search GWDs..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <select
-          className="border rounded-md px-3 py-2"
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
+      {/* Collapsible Filter Section */}
+      <div className="border rounded-lg">
+        <Button
+          variant="ghost"
+          className="w-full flex justify-between p-4"
+          onClick={() => setShowFilters(!showFilters)}
         >
-          <option value="all">All Statuses</option>
-          <option value="Not Started">Not Started</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Complete">Complete</option>
-          <option value="Cancelled">Cancelled</option>
-          <option value="On Hold">On Hold</option>
-          <option value="Waiting for CLEIR">Waiting for CLEIR</option>
-          <option value="Ready">Ready</option>
-          <option value="No Longer Mine">No Longer Mine</option>
-        </select>
-        <select
-          className="border rounded-md px-3 py-2"
-          value={systemFilter}
-          onChange={(e) => setSystemFilter(e.target.value)}
-        >
-          <option value="all">All Systems</option>
-          {systems.map(system => (
-            <option key={system} value={system || ''}>
-              {system || 'Unknown System'}
-            </option>
-          ))}
-        </select>
+          <span className="font-medium">Filters</span>
+          {showFilters ? (
+            <ChevronUp className="h-4 w-4" />
+          ) : (
+            <ChevronDown className="h-4 w-4" />
+          )}
+        </Button>
+        
+        {showFilters && (
+          <div className="p-4 border-t space-y-4">
+            <Input
+              placeholder="Search GWDs..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FilterButtonGroup
+                options={STATUS_OPTIONS}
+                selected={statusFilters}
+                onChange={setStatusFilters}
+                label="Filter by Status"
+              />
+              
+              <FilterButtonGroup
+                options={systems}
+                selected={systemFilters}
+                onChange={setSystemFilters}
+                label="Filter by System"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Summary Stats */}
