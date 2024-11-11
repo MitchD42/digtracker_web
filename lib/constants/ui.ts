@@ -12,7 +12,8 @@ export const UI = {
     cardContent: "p-4 border-t space-y-4",
     grid: "grid grid-cols-1 md:grid-cols-2 gap-4",
     controls: "flex gap-2 mb-4",
-    comparison: "bg-muted"
+    comparison: "bg-muted",
+    loading: "flex items-center justify-center p-8 text-gray-500"
   },
   
   inputs: {

@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LayoutDashboard, FileText, Wrench, ShoppingCart, Database, Package, Upload } from 'lucide-react'
+import { LayoutDashboard, FileText, Wrench, ShoppingCart, Database, Package, Upload, FileOutput } from 'lucide-react'
 
 export default function ProtectedLayout({
   children,
@@ -35,13 +35,6 @@ export default function ProtectedLayout({
               GWDs
             </Link>
             <Link 
-              href="/protected/material"
-              className="flex items-center px-4 py-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
-            >
-              <Package className="h-5 w-5 mr-3" />
-              Materials
-            </Link>
-            <Link 
               href="/protected/po"
               className="flex items-center px-4 py-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
             >
@@ -49,11 +42,25 @@ export default function ProtectedLayout({
               Purchase Orders
             </Link>
             <Link 
+              href="/protected/material"
+              className="flex items-center px-4 py-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+            >
+              <Package className="h-5 w-5 mr-3" />
+              Materials
+            </Link>
+            <Link 
               href="/protected/data"
               className="flex items-center px-4 py-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
             >
               <Database className="h-5 w-5 mr-3" />
               Data
+            </Link>
+            <Link 
+              href="/protected/reports"
+              className="flex items-center px-4 py-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+            >
+              <FileOutput className="h-5 w-5 mr-3" />
+              Reports
             </Link>
             <Link 
               href="/protected/import"

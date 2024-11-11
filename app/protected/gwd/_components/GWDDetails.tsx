@@ -64,6 +64,7 @@ export default function GWDDetails({ gwd, afes, onClose, onUpdate }: GWDDetailsP
           system: editedGWD.system,
           pipeline: editedGWD.pipeline,
           status: editedGWD.status,
+          initial_budget: editedGWD.initial_budget,
           land_cost: editedGWD.land_cost,
           dig_cost: editedGWD.dig_cost,
           b_sleeve: editedGWD.b_sleeve,
@@ -242,11 +243,52 @@ export default function GWDDetails({ gwd, afes, onClose, onUpdate }: GWDDetailsP
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Initial Budget</Label>
-                  <p className="text-lg">${editedGWD.initial_budget.toLocaleString()}</p>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={editedGWD.initial_budget || ''}
+                      onChange={e => setEditedGWD(prev => ({
+                        ...prev,
+                        initial_budget: parseFloat(e.target.value) || 0
+                      }))}
+                    />
+                  ) : (
+                    <p className="text-lg">${editedGWD.initial_budget?.toLocaleString() || 'N/A'}</p>
+                  )}
+                </div>
+                <div>
+                  <Label>Land Cost</Label>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={editedGWD.land_cost || ''}
+                      onChange={e => setEditedGWD(prev => ({
+                        ...prev,
+                        land_cost: parseFloat(e.target.value) || 0
+                      }))}
+                    />
+                  ) : (
+                    <p className="text-lg">${editedGWD.land_cost?.toLocaleString() || 'N/A'}</p>
+                  )}
+                </div>
+                <div>
+                  <Label>Dig Cost</Label>
+                  {isEditing ? (
+                    <Input
+                      type="number"
+                      value={editedGWD.dig_cost || ''}
+                      onChange={e => setEditedGWD(prev => ({
+                        ...prev,
+                        dig_cost: parseFloat(e.target.value) || 0
+                      }))}
+                    />
+                  ) : (
+                    <p className="text-lg">${editedGWD.dig_cost?.toLocaleString() || 'N/A'}</p>
+                  )}
                 </div>
                 <div>
                   <Label>Total Cost</Label>
-                  <p className="text-lg">${(editedGWD.land_cost + editedGWD.dig_cost).toLocaleString()}</p>
+                  <p className="text-lg">${((editedGWD.land_cost || 0) + (editedGWD.dig_cost || 0)).toLocaleString()}</p>
                 </div>
               </div>
             </div>
@@ -514,7 +556,7 @@ export default function GWDDetails({ gwd, afes, onClose, onUpdate }: GWDDetailsP
 
           <Card>
             <CardHeader>
-              <CardTitle>Location & Cost Details</CardTitle>
+              <CardTitle>Location</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
@@ -525,39 +567,6 @@ export default function GWDDetails({ gwd, afes, onClose, onUpdate }: GWDDetailsP
                 <div>
                   <Label className={UI.text.label}>Longitude</Label>
                   <p className={UI.text.subtitle}>{editedGWD.longitude || 'N/A'}</p>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className={UI.text.label}>Land Cost</Label>
-                  {isEditing ? (
-                    <Input
-                      type="number"
-                      value={editedGWD.land_cost || ''}
-                      onChange={e => setEditedGWD(prev => ({
-                        ...prev,
-                        land_cost: parseFloat(e.target.value)
-                      }))}
-                    />
-                  ) : (
-                    <p className={UI.text.subtitle}>${editedGWD.land_cost?.toLocaleString() || 'N/A'}</p>
-                  )}
-                </div>
-                <div>
-                  <Label className={UI.text.label}>Dig Cost</Label>
-                  {isEditing ? (
-                    <Input
-                      type="number"
-                      value={editedGWD.dig_cost || ''}
-                      onChange={e => setEditedGWD(prev => ({
-                        ...prev,
-                        dig_cost: parseFloat(e.target.value)
-                      }))}
-                    />
-                  ) : (
-                    <p className={UI.text.subtitle}>${editedGWD.dig_cost?.toLocaleString() || 'N/A'}</p>
-                  )}
                 </div>
               </div>
             </CardContent>
