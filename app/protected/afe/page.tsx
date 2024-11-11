@@ -164,7 +164,7 @@ export default function AFEPage() {
 
   return (
     <div className="p-6">
-      <Card className="bg-white dark:bg-gray-800">
+      <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-2xl font-semibold">AFE Management</CardTitle>

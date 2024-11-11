@@ -89,7 +89,7 @@ export default function SystemsList({
         {systems.map(system => (
           <div key={system.system_id} className="border rounded-lg">
             <div
-              className="flex items-center justify-between p-3 hover:bg-gray-50 cursor-pointer"
+              className="flex items-center justify-between p-3 hover:bg-accent hover:text-accent-foreground cursor-pointer"
               onClick={() => toggleSystem(system)}
             >
               <div className="flex items-center gap-2">
@@ -151,7 +151,7 @@ export default function SystemsList({
               </div>
             </div>
             {expandedSystem?.system_id === system.system_id && (
-              <div className="border-t p-3 bg-gray-50">
+              <div className="border-t p-3 bg-muted">
                 <PipelinesList
                   system={system}
                   onSystemsChange={onSystemsChange}

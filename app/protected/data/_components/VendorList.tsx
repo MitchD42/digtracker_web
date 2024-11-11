@@ -94,7 +94,7 @@ export default function VendorList({ vendors, onVendorsChange }: VendorListProps
       )}
 
       {isAdding && (
-        <div className="flex items-center gap-2 p-4 border rounded-lg bg-gray-50">
+        <div className="flex items-center gap-2 p-4 border rounded-lg bg-muted">
           <Input
             placeholder="New vendor name"
             value={newVendorName}
@@ -123,7 +123,7 @@ export default function VendorList({ vendors, onVendorsChange }: VendorListProps
         {filteredVendors.map(vendor => (
           <div
             key={vendor.vendor_id}
-            className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+            className="flex items-center justify-between p-4 border rounded-lg hover:bg-accent hover:text-accent-foreground"
           >
             {editingId === vendor.vendor_id ? (
               <div className="flex items-center gap-2 flex-1">

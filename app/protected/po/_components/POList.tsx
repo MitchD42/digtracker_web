@@ -83,7 +83,7 @@ export default function POList({ pos, onSelect }: POListProps) {
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <select
-          className="border rounded-md px-3 py-2"
+          className="border rounded-md px-3 py-2 bg-background"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as 'all' | 'Open' | 'Closed')}
         >
@@ -105,16 +105,16 @@ export default function POList({ pos, onSelect }: POListProps) {
 
       {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Value</h3>
+        <div className="bg-muted p-4 rounded-lg">
+          <h3 className="text-sm font-medium text-muted-foreground">Total Value</h3>
           <p className="text-2xl font-bold">${totalValue.toLocaleString()}</p>
         </div>
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Open POs</h3>
+        <div className="bg-muted p-4 rounded-lg">
+          <h3 className="text-sm font-medium text-muted-foreground">Open POs</h3>
           <p className="text-2xl font-bold">{openCount}</p>
         </div>
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Closed POs</h3>
+        <div className="bg-muted p-4 rounded-lg">
+          <h3 className="text-sm font-medium text-muted-foreground">Closed POs</h3>
           <p className="text-2xl font-bold">{closedCount}</p>
         </div>
       </div>
@@ -125,7 +125,7 @@ export default function POList({ pos, onSelect }: POListProps) {
           variant="outline"
           size="sm"
           onClick={() => handleSort('po_number')}
-          className={sortField === 'po_number' ? 'bg-gray-100' : ''}
+          className={sortField === 'po_number' ? 'bg-accent' : ''}
         >
           PO # {sortField === 'po_number' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
@@ -133,7 +133,7 @@ export default function POList({ pos, onSelect }: POListProps) {
           variant="outline"
           size="sm"
           onClick={() => handleSort('status')}
-          className={sortField === 'status' ? 'bg-gray-100' : ''}
+          className={sortField === 'status' ? 'bg-accent' : ''}
         >
           Status {sortField === 'status' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
@@ -141,7 +141,7 @@ export default function POList({ pos, onSelect }: POListProps) {
           variant="outline"
           size="sm"
           onClick={() => handleSort('initial_value')}
-          className={sortField === 'initial_value' ? 'bg-gray-100' : ''}
+          className={sortField === 'initial_value' ? 'bg-accent' : ''}
         >
           Initial Value {sortField === 'initial_value' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
@@ -149,7 +149,7 @@ export default function POList({ pos, onSelect }: POListProps) {
           variant="outline"
           size="sm"
           onClick={() => handleSort('total_value')}
-          className={sortField === 'total_value' ? 'bg-gray-100' : ''}
+          className={sortField === 'total_value' ? 'bg-accent' : ''}
         >
           Total Value {sortField === 'total_value' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
@@ -160,16 +160,16 @@ export default function POList({ pos, onSelect }: POListProps) {
         {sortedPOs.map((po) => (
           <div 
             key={po.po_id} 
-            className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+            className="p-4 border rounded-lg hover:bg-accent hover:text-accent-foreground cursor-pointer transition-colors"
             onClick={() => onSelect(po)}
           >
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-semibold text-lg">PO #{po.po_number}</h3>
-                <p className="text-sm text-gray-600 dark:text-gray-300">
+                <p className="text-sm text-muted-foreground">
                   AFE: {po.afe.afe_number}
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-muted-foreground mt-1">
                   Vendor: {po.vendor.vendor_name}
                 </p>
               </div>
@@ -180,11 +180,11 @@ export default function POList({ pos, onSelect }: POListProps) {
                 <p className="font-medium mt-2">
                   Initial: ${po.initial_value.toLocaleString()}
                 </p>
-                <p className="text-sm text-gray-600">
+                <p className="text-sm text-muted-foreground">
                   Total: ${po.total_value.toLocaleString()}
                 </p>
                 {po.change_orders.length > 0 && (
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-muted-foreground">
                     {po.change_orders.length} change order(s)
                   </p>
                 )}

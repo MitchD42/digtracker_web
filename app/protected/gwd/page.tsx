@@ -45,9 +45,9 @@ export default function GWDPage() {
         .from('afes')
         .select(`
           *,
+          system:systems!afes_system_id_fkey(*),
           afe_pipelines (
             afe_pipeline_id,
-            pipeline_id,
             pipeline:pipelines (
               pipeline_id,
               pipeline_name
@@ -57,11 +57,24 @@ export default function GWDPage() {
         .order('afe_number')
       
       if (afeError) {
-        console.error('Error fetching AFEs:', afeError)
+        console.log('Supabase Error:', {
+          error: afeError,
+          message: afeError.message,
+          code: afeError.code,
+          details: afeError.details
+        })
         return
       }
 
-      console.log('AFEs loaded:', afes)
+      if (afes?.[0]) {
+        console.log('First AFE structure:', {
+          afe_id: afes[0].afe_id,
+          afe_number: afes[0].afe_number,
+          system: afes[0].system,
+          pipelines: afes[0].afe_pipelines
+        })
+      }
+
       setAFEs(afes || [])
     } catch (error) {
       console.error('Error loading AFEs:', error)
@@ -96,7 +109,7 @@ export default function GWDPage() {
 
   return (
     <div className="p-6">
-      <Card className="bg-white dark:bg-gray-800">
+      <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-2xl font-semibold">GWD Management</CardTitle>
@@ -142,6 +155,7 @@ export default function GWDPage() {
               {selectedGWD && (
                 <GWDDetails 
                   gwd={selectedGWD}
+                  afes={afes}
                   onClose={() => {
                     setSelectedGWD(null)
                     setActiveTab('list')

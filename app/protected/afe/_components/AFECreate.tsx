@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import { AFE, AFEPipeline, AFEStatus, Pipeline, System } from '@/types/database'
 import { X, PlusCircle } from 'lucide-react'
+import { UI } from '@/lib/constants/ui'
 
 interface AFECreateProps {
   onSuccess: () => void
@@ -36,9 +37,9 @@ export default function AFECreate({ onSuccess, systems }: AFECreateProps) {
 
   if (systems.length === 0) {
     return (
-      <div className="p-6 text-center border rounded-lg bg-gray-50 dark:bg-gray-800">
-        <h3 className="text-lg font-medium mb-2">System Required</h3>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
+      <div className={UI.emptyState.container}>
+        <h3 className={UI.emptyState.title}>System Required</h3>
+        <p className={UI.emptyState.description}>
           You need to create at least one system before you can create an AFE.
         </p>
         <Button 
@@ -151,16 +152,16 @@ export default function AFECreate({ onSuccess, systems }: AFECreateProps) {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl mx-auto">
+    <div className={UI.containers.section + " max-w-2xl mx-auto"}>
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-md text-red-600 dark:text-red-400">
+        <div className={UI.containers.errorBox}>
           {error}
         </div>
       )}
 
       <div className="grid gap-4">
         <div>
-          <Label htmlFor="afe_number">AFE Number *</Label>
+          <Label htmlFor="afe_number" className={UI.text.label}>AFE Number *</Label>
           <Input
             id="afe_number"
             value={newAFE.afe_number}
@@ -171,7 +172,7 @@ export default function AFECreate({ onSuccess, systems }: AFECreateProps) {
         </div>
 
         <div>
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description" className={UI.text.label}>Description</Label>
           <Input
             id="description"
             value={newAFE.description}
@@ -182,7 +183,7 @@ export default function AFECreate({ onSuccess, systems }: AFECreateProps) {
         </div>
 
         <div>
-          <Label htmlFor="budget">Budget *</Label>
+          <Label htmlFor="budget" className={UI.text.label}>Budget *</Label>
           <Input
             id="budget"
             type="number"
@@ -194,10 +195,10 @@ export default function AFECreate({ onSuccess, systems }: AFECreateProps) {
         </div>
 
         <div>
-          <Label htmlFor="system">System *</Label>
+          <Label htmlFor="system" className={UI.text.label}>System *</Label>
           <select
             id="system"
-            className="w-full border rounded-md px-3 py-2"
+            className={UI.inputs.select}
             value={newAFE.system_id || ''}
             onChange={(e) => handleSystemChange(Number(e.target.value))}
           >
@@ -212,7 +213,7 @@ export default function AFECreate({ onSuccess, systems }: AFECreateProps) {
 
         {newAFE.system_id && (
           <div>
-            <Label>Pipelines</Label>
+            <Label className={UI.text.label}>Pipelines</Label>
             <div className="space-y-2">
               {availablePipelines.map(pipeline => (
                 <label key={pipeline.pipeline_id} className="flex items-center space-x-2">
@@ -231,7 +232,7 @@ export default function AFECreate({ onSuccess, systems }: AFECreateProps) {
                       }))
                     }}
                   />
-                  <span>{pipeline.pipeline_name}</span>
+                  <span className={UI.text.subtitle}>{pipeline.pipeline_name}</span>
                 </label>
               ))}
             </div>
@@ -239,7 +240,7 @@ export default function AFECreate({ onSuccess, systems }: AFECreateProps) {
         )}
 
         <div>
-          <Label htmlFor="notes">Notes</Label>
+          <Label htmlFor="notes" className={UI.text.label}>Notes</Label>
           <Input
             id="notes"
             value={newAFE.notes}

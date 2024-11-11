@@ -7,6 +7,7 @@ import { PlusCircle, Pencil, Save, X, Plus } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { CSAssignmentModal } from './CSList/CSAssignmentModal'
+import { UI } from '@/lib/constants/ui'
 
 interface CSListProps {
   supervisors: CSWithDetails[]
@@ -77,8 +78,8 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className={UI.containers.section}>
+      <div className="flex justify-between items-center mb-6">
         <Input
           placeholder="Search construction supervisors..."
           value={searchTerm}
@@ -97,13 +98,13 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
       </div>
 
       {error && (
-        <div className="p-4 text-red-600 bg-red-50 rounded-md">
+        <div className={UI.containers.errorBox}>
           {error}
         </div>
       )}
 
       {isAdding && (
-        <div className="flex items-center gap-2 p-4 border rounded-lg bg-gray-50">
+        <div className={UI.containers.card}>
           <Input
             placeholder="New CS name"
             value={newCSName}
@@ -128,13 +129,13 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
         </div>
       )}
 
-      <div className="space-y-2">
+      <div className="space-y-4">
         {filteredCS.map(cs => (
           <div
             key={cs.cs_id}
-            className="p-4 border rounded-lg hover:bg-gray-50"
+            className={`${UI.listItem.base} ${UI.listItem.interactive}`}
           >
-            <div className="flex items-center justify-between mb-2">
+            <div className={UI.listItem.header}>
               {editingId === cs.cs_id ? (
                 <div className="flex items-center gap-2 flex-1">
                   <Input
@@ -160,7 +161,7 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
                 </div>
               ) : (
                 <>
-                  <span className="font-medium">{cs.name}</span>
+                  <span className={UI.text.title}>{cs.name}</span>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -185,9 +186,9 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
             
             {/* Display POs */}
             {cs.purchase_orders && cs.purchase_orders.length > 0 && (
-              <div>
-                <h4 className="text-sm font-medium mb-2">Purchase Orders:</h4>
-                <div className="flex flex-wrap gap-2">
+              <div className="mt-4">
+                <h4 className={UI.text.label}>Purchase Orders:</h4>
+                <div className="flex flex-wrap gap-2 mt-2">
                   {cs.purchase_orders.map(poData => {
                     if (!poData.po) return null;
                     return (
@@ -206,9 +207,9 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
 
             {/* Display GWDs */}
             {cs.gwds && cs.gwds.length > 0 && (
-              <div className="mt-2">
-                <h4 className="text-sm font-medium mb-2">GWDs:</h4>
-                <div className="flex flex-wrap gap-2">
+              <div className="mt-4">
+                <h4 className={UI.text.label}>GWDs:</h4>
+                <div className="flex flex-wrap gap-2 mt-2">
                   {cs.gwds.map(gwdData => (
                     <Badge
                       key={gwdData.cs_gwd_id}
@@ -225,7 +226,6 @@ export default function CSList({ supervisors, onSupervisorsChange }: CSListProps
         ))}
       </div>
 
-      {/* Add CSAssignmentModal */}
       {selectedCS && (
         <CSAssignmentModal
           cs={selectedCS}

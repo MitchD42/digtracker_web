@@ -120,7 +120,7 @@ export default function MaterialPage() {
 
   if (error) {
     return (
-      <div className="p-6 text-center text-red-600 border rounded-lg bg-red-50">
+      <div className="p-6 text-center text-destructive bg-destructive/10 border rounded-lg">
         <h3 className="text-lg font-medium mb-2">Error</h3>
         <p>{error}</p>
         <Button 
@@ -136,7 +136,7 @@ export default function MaterialPage() {
 
   return (
     <div className="p-6">
-      <Card className="bg-white dark:bg-gray-800">
+      <Card>
         <CardHeader>
           <div className="flex justify-between items-center">
             <CardTitle className="text-2xl font-semibold">Material Management</CardTitle>

@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { ArrowUpDown, AlertTriangle, PlusCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { UI } from '@/lib/constants/ui'
 
 interface AFEListProps {
   afes: AFEWithPipelines[]
@@ -28,9 +29,9 @@ export default function AFEList({ afes = [], systems = [], onSelect }: AFEListPr
 
   if (systems.length === 0) {
     return (
-      <div className="p-6 text-center border rounded-lg bg-gray-50 dark:bg-gray-800">
-        <h3 className="text-lg font-medium mb-2">No Systems Available</h3>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
+      <div className={UI.emptyState.container}>
+        <h3 className={UI.emptyState.title}>No Systems Available</h3>
+        <p className={UI.emptyState.description}>
           You need to set up at least one system before creating AFEs.
         </p>
         <Button 
@@ -46,9 +47,9 @@ export default function AFEList({ afes = [], systems = [], onSelect }: AFEListPr
 
   if (afes.length === 0) {
     return (
-      <div className="p-6 text-center border rounded-lg bg-gray-50 dark:bg-gray-800">
-        <h3 className="text-lg font-medium mb-2">No AFEs Found</h3>
-        <p className="text-gray-600 dark:text-gray-300">
+      <div className={UI.emptyState.container}>
+        <h3 className={UI.emptyState.title}>No AFEs Found</h3>
+        <p className={UI.emptyState.description}>
           Create your first AFE to get started.
         </p>
       </div>
@@ -107,16 +108,16 @@ export default function AFEList({ afes = [], systems = [], onSelect }: AFEListPr
   }
 
   return (
-    <div className="space-y-4">
+    <div className={UI.containers.section}>
       {/* Search and Filters */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className={UI.containers.searchGrid}>
         <Input
           placeholder="Search AFEs..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
         <select
-          className="border rounded-md px-3 py-2"
+          className={UI.inputs.select}
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as 'all' | AFEStatus)}
         >
@@ -127,7 +128,7 @@ export default function AFEList({ afes = [], systems = [], onSelect }: AFEListPr
           <option value="Cancelled">Cancelled</option>
         </select>
         <select
-          className="border rounded-md px-3 py-2"
+          className={UI.inputs.select}
           value={systemFilter}
           onChange={(e) => setSystemFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
         >
@@ -141,79 +142,75 @@ export default function AFEList({ afes = [], systems = [], onSelect }: AFEListPr
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-4 gap-4 mb-6">
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Budget</h3>
-          <p className="text-2xl font-bold">${totalBudget.toLocaleString()}</p>
+      <div className={UI.containers.statsGrid}>
+        <div className={UI.statsCard.container}>
+          <h3 className={UI.statsCard.label}>Total Budget</h3>
+          <p className={UI.statsCard.value}>${totalBudget.toLocaleString()}</p>
         </div>
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Costs</h3>
-          <p className="text-2xl font-bold">${totalCosts.toLocaleString()}</p>
+        <div className={UI.statsCard.container}>
+          <h3 className={UI.statsCard.label}>Total Costs</h3>
+          <p className={UI.statsCard.value}>${totalCosts.toLocaleString()}</p>
         </div>
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Draft</h3>
-          <p className="text-2xl font-bold">{draftCount}</p>
+        <div className={UI.statsCard.container}>
+          <h3 className={UI.statsCard.label}>Draft</h3>
+          <p className={UI.statsCard.value}>{draftCount}</p>
         </div>
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Active</h3>
-          <p className="text-2xl font-bold">{activeCount}</p>
+        <div className={UI.statsCard.container}>
+          <h3 className={UI.statsCard.label}>Active</h3>
+          <p className={UI.statsCard.value}>{activeCount}</p>
         </div>
       </div>
 
       {/* Sort Controls */}
-      <div className="flex gap-2 mb-4">
+      <div className={UI.containers.sortControls}>
         <Button
-          variant="outline"
+          variant={sortField === 'afe_number' ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => handleSort('afe_number')}
-          className={sortField === 'afe_number' ? 'bg-gray-100' : ''}
         >
           AFE # {sortField === 'afe_number' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
         <Button
-          variant="outline"
+          variant={sortField === 'status' ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => handleSort('status')}
-          className={sortField === 'status' ? 'bg-gray-100' : ''}
         >
           Status {sortField === 'status' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
         <Button
-          variant="outline"
+          variant={sortField === 'budget' ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => handleSort('budget')}
-          className={sortField === 'budget' ? 'bg-gray-100' : ''}
         >
           Budget {sortField === 'budget' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
         <Button
-          variant="outline"
+          variant={sortField === 'current_costs' ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => handleSort('current_costs')}
-          className={sortField === 'current_costs' ? 'bg-gray-100' : ''}
         >
           Costs {sortField === 'current_costs' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
       </div>
 
       {/* AFE List */}
-      <div className="space-y-4">
+      <div className={UI.containers.section}>
         {sortedAFEs.map((afe) => {
           const isOverBudget = afe.current_costs > afe.budget
 
           return (
             <div 
               key={afe.afe_id} 
-              className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+              className={`${UI.listItem.base} ${UI.listItem.interactive}`}
               onClick={() => onSelect(afe)}
             >
-              <div className="flex justify-between items-start">
+              <div className={UI.listItem.header}>
                 <div>
-                  <h3 className="font-semibold text-lg">{afe.afe_number}</h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                  <h3 className={UI.text.title}>{afe.afe_number}</h3>
+                  <p className={UI.text.subtitle}>
                     {afe.description}
                   </p>
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className={UI.text.subtitle + " mt-1"}>
                     System: {getSystemName(afe.system_id)}
                   </p>
                   {afe.afe_pipelines && afe.afe_pipelines.length > 0 && (
@@ -250,7 +247,7 @@ export default function AFEList({ afes = [], systems = [], onSelect }: AFEListPr
                     )}
                   </div>
                   <p className="font-medium mt-2">Budget: ${afe.budget.toLocaleString()}</p>
-                  <p className={`text-sm ${isOverBudget ? 'text-red-600 dark:text-red-400' : 'text-gray-600 dark:text-gray-300'}`}>
+                  <p className={`text-sm ${isOverBudget ? 'text-destructive' : 'text-muted-foreground'}`}>
                     Current Costs: ${afe.current_costs.toLocaleString()}
                   </p>
                 </div>

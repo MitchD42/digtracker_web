@@ -4,6 +4,8 @@ import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { ArrowUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
+import { UI } from '@/lib/constants/ui'
 
 interface MaterialListProps {
   materials: Material[]
@@ -20,9 +22,9 @@ export default function MaterialList({ materials = [], onSelect }: MaterialListP
 
   if (materials.length === 0) {
     return (
-      <div className="p-6 text-center border rounded-lg bg-gray-50 dark:bg-gray-800">
-        <h3 className="text-lg font-medium mb-2">No Materials Found</h3>
-        <p className="text-gray-600 dark:text-gray-300">
+      <div className={UI.emptyState.container}>
+        <h3 className={UI.emptyState.title}>No Materials Found</h3>
+        <p className={UI.emptyState.description}>
           Create your first material to get started.
         </p>
       </div>
@@ -71,7 +73,7 @@ export default function MaterialList({ materials = [], onSelect }: MaterialListP
   }
 
   return (
-    <div className="space-y-4">
+    <div className={UI.containers.section}>
       {/* Search */}
       <div className="mb-6">
         <Input
@@ -82,40 +84,37 @@ export default function MaterialList({ materials = [], onSelect }: MaterialListP
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Materials</h3>
-          <p className="text-2xl font-bold">{totalMaterials}</p>
+      <div className={UI.containers.statsGrid}>
+        <div className={UI.statsCard.container}>
+          <h3 className={UI.statsCard.label}>Total Materials</h3>
+          <p className={UI.statsCard.value}>{totalMaterials}</p>
         </div>
-        <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
-          <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Value</h3>
-          <p className="text-2xl font-bold">${totalValue.toLocaleString()}</p>
+        <div className={UI.statsCard.container}>
+          <h3 className={UI.statsCard.label}>Total Value</h3>
+          <p className={UI.statsCard.value}>${totalValue.toLocaleString()}</p>
         </div>
       </div>
 
       {/* Sort Controls */}
       <div className="flex gap-2 mb-4">
         <Button
-          variant="outline"
+          variant={sortField === 'vendor_ref_id' ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => handleSort('vendor_ref_id')}
-          className={sortField === 'vendor_ref_id' ? 'bg-gray-100' : ''}
         >
           Reference # {sortField === 'vendor_ref_id' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
         <Button
-          variant="outline"
+          variant={sortField === 'price' ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => handleSort('price')}
-          className={sortField === 'price' ? 'bg-gray-100' : ''}
         >
           Price {sortField === 'price' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
         <Button
-          variant="outline"
+          variant={sortField === 'created_date' ? 'secondary' : 'outline'}
           size="sm"
           onClick={() => handleSort('created_date')}
-          className={sortField === 'created_date' ? 'bg-gray-100' : ''}
         >
           Date {sortField === 'created_date' && <ArrowUpDown className="ml-2 h-4 w-4" />}
         </Button>
@@ -126,21 +125,21 @@ export default function MaterialList({ materials = [], onSelect }: MaterialListP
         {sortedMaterials.map((material) => (
           <div 
             key={material.material_id} 
-            className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer transition-colors"
+            className={cn(UI.listItem.base, UI.listItem.interactive)}
             onClick={() => onSelect(material)}
           >
-            <div className="flex justify-between items-start">
+            <div className={UI.listItem.header}>
               <div>
-                <h3 className="font-semibold text-lg">
+                <h3 className={UI.text.title}>
                   {material.vendor.vendor_name}
                 </h3>
                 {material.vendor_ref_id && (
-                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                  <p className={UI.text.subtitle}>
                     Ref: {material.vendor_ref_id}
                   </p>
                 )}
                 {material.notes && (
-                  <p className="text-sm text-gray-500 mt-1">
+                  <p className={UI.text.subtitle}>
                     {material.notes}
                   </p>
                 )}
@@ -151,10 +150,10 @@ export default function MaterialList({ materials = [], onSelect }: MaterialListP
                 )}
               </div>
               <div className="text-right">
-                <p className="text-lg font-semibold">
+                <p className={UI.text.title}>
                   ${material.price.toLocaleString()}
                 </p>
-                <p className="text-sm text-gray-500 mt-2">
+                <p className={UI.text.subtitle + " mt-2"}>
                   Created: {new Date(material.created_date).toLocaleDateString()}
                 </p>
               </div>

@@ -10,6 +10,7 @@ import SystemsList from './_components/SystemsList'
 import VendorList from './_components/VendorList'
 import CSList from './_components/CSList'
 import { motion } from 'framer-motion'
+import { UI } from '@/lib/constants/ui'
 
 type DataType = 'systems' | 'vendors' | 'construction-supervisors'
 
@@ -171,17 +172,17 @@ export default function DataPage() {
   }, [])
 
   return (
-    <div className="p-6">
+    <div className={UI.containers.section}>
       <div className="mb-8">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Data Management</h2>
+          <h2 className={UI.text.title + " text-3xl"}>Data Management</h2>
           <Button variant="outline" onClick={loadData}>
             <RefreshCcw className="h-4 w-4 mr-2" />
             Refresh
           </Button>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mb-8">
+        <div className={UI.containers.statsGrid}>
           {dataCategories.map((category, index) => (
             <motion.div
               key={category.id}
@@ -197,12 +198,12 @@ export default function DataPage() {
               >
                 <div className={`h-2 bg-gradient-to-r ${category.color}`} />
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">{category.name}</CardTitle>
+                  <CardTitle className={UI.text.subtitle}>{category.name}</CardTitle>
                   <category.icon className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{category.count}</div>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <div className={UI.statsCard.value}>{category.count}</div>
+                  <p className={UI.text.subtitle + " mt-1"}>
                     {category.count === 1 ? 'Entry' : 'Entries'}
                   </p>
                 </CardContent>
@@ -213,13 +214,13 @@ export default function DataPage() {
       </div>
 
       {error && (
-        <div className="p-4 mb-4 text-red-600 bg-red-50 rounded-md">
+        <div className={UI.containers.errorBox}>
           {error}
         </div>
       )}
 
       <Card>
-        <div className="p-6">
+        <div className={UI.containers.card}>
           {isLoading ? (
             <div className="flex justify-center items-center h-32">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>

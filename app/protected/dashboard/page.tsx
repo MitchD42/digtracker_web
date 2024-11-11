@@ -20,6 +20,7 @@ import Link from "next/link"
 import { GWDStatusChart } from "@/components/charts/GWDStatusChart"
 import { BudgetChart } from "@/components/charts/BudgetChart"
 import { LucideIcon } from 'lucide-react'
+import { UI } from '@/lib/constants/ui'
 
 interface POData extends PurchaseOrder {
   change_orders: Array<{
@@ -133,22 +134,22 @@ export default function Dashboard() {
   ]
 
   return (
-    <div className="container mx-auto py-10 px-4">
+    <div className={UI.containers.section + " container mx-auto py-10 px-4"}>
       <div className="flex justify-between items-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 dark:text-white">Dashboard</h2>
+        <h2 className={UI.text.title + " text-3xl"}>Dashboard</h2>
       </div>
       
       {/* Financial Overview */}
-      <div className="grid gap-6 md:grid-cols-3 mb-8">
+      <div className={UI.containers.statsGrid}>
         {financialMetrics.map((metric) => (
           <Card key={metric.name} className="overflow-hidden">
             <div className={`h-2 bg-gradient-to-r ${getIndicatorColor(metric.indicator)}`} />
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">{metric.name}</CardTitle>
+              <CardTitle className={UI.statsCard.label}>{metric.name}</CardTitle>
               <metric.icon className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className={UI.statsCard.value}>
                 ${metric.value.toLocaleString()}
               </div>
             </CardContent>
@@ -158,7 +159,7 @@ export default function Dashboard() {
 
       {/* Project Status */}
       <div className="grid gap-6 lg:grid-cols-2 mb-8">
-        <Card>
+        <Card className={UI.statsCard.container}>
           <CardHeader>
             <CardTitle>GWD Status Overview</CardTitle>
           </CardHeader>
@@ -167,7 +168,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={UI.statsCard.container}>
           <CardHeader>
             <CardTitle>Budget Utilization</CardTitle>
           </CardHeader>
@@ -178,7 +179,7 @@ export default function Dashboard() {
       </div>
 
       {/* Critical Alerts */}
-      <Card>
+      <Card className={UI.containers.card}>
         <CardHeader>
           <CardTitle>Attention Required</CardTitle>
         </CardHeader>
@@ -186,8 +187,8 @@ export default function Dashboard() {
           <div className="space-y-4">
             {metrics.alerts?.map((alert) => (
               <Alert key={alert.title} variant={alert.priority}>
-                <AlertTitle>{alert.title}</AlertTitle>
-                <AlertDescription>
+                <AlertTitle className={UI.text.title}>{alert.title}</AlertTitle>
+                <AlertDescription className={UI.text.subtitle}>
                   {alert.description}
                   <Button variant="link" asChild>
                     <Link href={alert.link}>{alert.action}</Link>

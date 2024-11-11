@@ -4,6 +4,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import { AFE, GWDWithAFE, AFEWithPipelines, Pipeline, System } from '@/types/database'
+import { UI } from '@/lib/constants/ui'
 
 interface GWDCreateProps {
   afes: AFEWithPipelines[]
@@ -169,10 +170,10 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
   }
 
   return (
-    <div className="grid gap-4">
+    <div className={UI.containers.section}>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="gwd_number">GWD Number</Label>
+          <Label className={UI.text.label} htmlFor="gwd_number">GWD Number</Label>
           <Input
             id="gwd_number"
             value={newGWD.gwd_number}
@@ -180,10 +181,10 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
           />
         </div>
         <div>
-          <Label htmlFor="afe_id">AFE</Label>
+          <Label className={UI.text.label} htmlFor="afe_id">AFE</Label>
           <select
             id="afe_id"
-            className="w-full px-3 py-2 border rounded-md"
+            className={UI.inputs.select}
             value={newGWD.afe_id}
             onChange={e => handleAFEChange(e.target.value)}
           >
@@ -199,19 +200,19 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="system">System</Label>
+          <Label className={UI.text.label} htmlFor="system">System</Label>
           <Input
             id="system"
             value={newGWD.system}
             readOnly
-            className="bg-gray-50"
+            className="bg-muted"
           />
         </div>
         <div>
-          <Label htmlFor="pipeline">Pipeline</Label>
+          <Label className={UI.text.label} htmlFor="pipeline">Pipeline</Label>
           <select
             id="pipeline"
-            className="w-full px-3 py-2 border rounded-md"
+            className={UI.inputs.select}
             value={newGWD.pipeline || ''}
             onChange={e => setNewGWD(prev => ({ ...prev, pipeline: e.target.value }))}
             disabled={availablePipelines.length === 0}
@@ -227,10 +228,10 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
       </div>
 
       <div>
-        <Label htmlFor="status">Status</Label>
+        <Label className={UI.text.label} htmlFor="status">Status</Label>
         <select
           id="status"
-          className="w-full px-3 py-2 border rounded-md"
+          className={UI.inputs.select}
           value={newGWD.status}
           onChange={e => setNewGWD((prev: NewGWD) => ({ ...prev, status: e.target.value as GWDStatus }))}
         >
@@ -246,7 +247,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
       </div>
 
       <div>
-        <Label htmlFor="initial_budget">Initial Budget</Label>
+        <Label className={UI.text.label} htmlFor="initial_budget">Initial Budget</Label>
         <Input
           id="initial_budget"
           type="number"
@@ -257,7 +258,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="land_cost">Land Cost</Label>
+          <Label className={UI.text.label} htmlFor="land_cost">Land Cost</Label>
           <Input
             id="land_cost"
             type="number"
@@ -266,7 +267,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
           />
         </div>
         <div>
-          <Label htmlFor="dig_cost">Dig Cost</Label>
+          <Label className={UI.text.label} htmlFor="dig_cost">Dig Cost</Label>
           <Input
             id="dig_cost"
             type="number"
@@ -278,7 +279,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="b_sleeve">B-Sleeve Count</Label>
+          <Label className={UI.text.label} htmlFor="b_sleeve">B-Sleeve Count</Label>
           <Input
             id="b_sleeve"
             type="number"
@@ -288,7 +289,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
           />
         </div>
         <div>
-          <Label htmlFor="petro_sleeve">Petro-Sleeve Count</Label>
+          <Label className={UI.text.label} htmlFor="petro_sleeve">Petro-Sleeve Count</Label>
           <Input
             id="petro_sleeve"
             type="number"
@@ -298,7 +299,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
           />
         </div>
         <div>
-          <Label htmlFor="composite">Composite Count</Label>
+          <Label className={UI.text.label} htmlFor="composite">Composite Count</Label>
           <Input
             id="composite"
             type="number"
@@ -308,7 +309,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
           />
         </div>
         <div>
-          <Label htmlFor="recoat">Recoat Count</Label>
+          <Label className={UI.text.label} htmlFor="recoat">Recoat Count</Label>
           <Input
             id="recoat"
             type="number"
@@ -320,7 +321,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
       </div>
 
       <div>
-        <Label htmlFor="notes">Notes</Label>
+        <Label className={UI.text.label} htmlFor="notes">Notes</Label>
         <Input
           id="notes"
           value={newGWD.notes}

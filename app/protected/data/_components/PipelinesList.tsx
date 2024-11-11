@@ -97,13 +97,13 @@ export default function PipelinesList({
         {pipelines.map(pipeline => (
           <div
             key={pipeline.pipeline_id}
-            className="flex justify-between items-center p-3 border rounded-lg bg-white"
+            className="flex justify-between items-center p-3 border rounded-lg bg-background hover:bg-accent hover:text-accent-foreground"
           >
             <span>{pipeline.pipeline_name}</span>
             <Button
               size="sm"
               variant="ghost"
-              className="text-red-600 hover:text-red-700"
+              className="text-destructive hover:text-destructive hover:bg-destructive/10"
               onClick={() => handleDeletePipeline(pipeline.pipeline_id)}
             >
               <Trash2 className="h-4 w-4" />

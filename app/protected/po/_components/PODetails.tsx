@@ -84,7 +84,7 @@ export default function PODetails({ po, onClose, onUpdate }: PODetailsProps) {
       <div className="flex justify-between items-start">
         <div>
           <h2 className="text-2xl font-bold">PO #{po.po_number}</h2>
-          <p className="text-gray-500">
+          <p className="text-muted-foreground">
             AFE: {po.afe.afe_number} | Vendor: {po.vendor.vendor_name}
           </p>
         </div>
@@ -166,7 +166,7 @@ export default function PODetails({ po, onClose, onUpdate }: PODetailsProps) {
                     <span className="font-medium">#{co.co_number}</span>
                     <span>${co.value.toLocaleString()}</span>
                   </div>
-                  <p className="text-sm text-gray-600">{co.description}</p>
+                  <p className="text-sm text-muted-foreground">{co.description}</p>
                 </div>
               ))}
             </div>

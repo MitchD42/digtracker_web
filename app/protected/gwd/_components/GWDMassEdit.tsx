@@ -59,7 +59,7 @@ const FilterButtonGroup = ({
 }) => {
   return (
     <div className="space-y-2">
-      <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</h3>
+      <h3 className="text-sm font-medium">{label}</h3>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => (
           <Button
@@ -151,7 +151,33 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
   }, [localGWDs, sortField, sortDirection])
 
   const handleCellEdit = (gwd_id: number, field: string, value: any) => {
-    // Update editedCells for saving to database later
+    // If changing AFE, also update the system
+    if (field === 'afe_id') {
+      const selectedAFE = afes.find(afe => afe.afe_id === value)
+      const systemName = selectedAFE?.system?.system_name || ''
+
+      // Update both AFE and system
+      setEditedCells(prev => {
+        const newCells = prev.filter(cell => 
+          !(cell.gwd_id === gwd_id && (cell.field === 'afe_id' || cell.field === 'system'))
+        )
+        return [
+          ...newCells,
+          { gwd_id, field: 'afe_id', value },
+          { gwd_id, field: 'system', value: systemName }
+        ]
+      })
+
+      // Update local GWDs with both fields
+      setLocalGWDs(prev => prev.map(gwd => 
+        gwd.gwd_id === gwd_id 
+          ? { ...gwd, afe_id: value, system: systemName }
+          : gwd
+      ))
+      return
+    }
+
+    // Handle other fields normally
     setEditedCells(prev => {
       const existing = prev.findIndex(cell => cell.gwd_id === gwd_id && cell.field === field)
       if (existing !== -1) {
@@ -162,7 +188,6 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
       return [...prev, { gwd_id, field, value }]
     })
 
-    // Update local GWD data for immediate display
     setLocalGWDs(prev => prev.map(gwd => 
       gwd.gwd_id === gwd_id 
         ? { ...gwd, [field]: value }
@@ -257,7 +282,7 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
 
       {/* Show message when no filters are applied */}
       {!isFiltersApplied && (
-        <div className="text-center p-8 text-gray-500">
+        <div className="text-center p-8 text-muted-foreground">
           Please select filters and click Apply to view GWDs
         </div>
       )}
@@ -266,7 +291,7 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
       {isFiltersApplied && (
         <>
           {/* Save Changes Button */}
-          <div className="flex justify-end sticky top-0 bg-white dark:bg-gray-900 z-10 py-2">
+          <div className="flex justify-end sticky top-0 bg-background z-10 py-2">
             <Button
               onClick={saveChanges}
               disabled={editedCells.length === 0}
@@ -282,8 +307,8 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
             <div className="overflow-auto max-h-[calc(100vh-300px)] relative">
               <table className="w-full border-collapse">
                 <thead>
-                  <tr className="bg-gray-100 dark:bg-gray-800">
-                    <th className="p-2 text-left sticky left-0 bg-gray-100 dark:bg-gray-800 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                  <tr className="bg-muted">
+                    <th className="p-2 text-left sticky left-0 bg-muted z-10">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -312,8 +337,8 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
                 </thead>
                 <tbody>
                   {displayGWDs.map((gwd) => (
-                    <tr key={gwd.gwd_id} className="border-b hover:bg-gray-50 dark:hover:bg-gray-700">
-                      <td className="p-2 sticky left-0 bg-white dark:bg-gray-900 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                    <tr key={gwd.gwd_id} className="border-b hover:bg-accent hover:text-accent-foreground">
+                      <td className="p-2 sticky left-0 bg-background z-10">
                         {gwd.gwd_number}
                       </td>
                       <td className="p-2">{gwd.system}</td>

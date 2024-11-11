@@ -1,5 +1,6 @@
 'use client'
 
+import { UI } from '@/lib/constants/ui'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
@@ -40,25 +41,37 @@ export default function GWDComparison({ differences, onResolution }: GWDComparis
   })
 
   return (
-    <div className="space-y-4">
+    <div className={UI.containers.section}>
       {Object.entries(differences).map(([key, diffs]) => (
         <Card key={key}>
-          <CardContent className="p-4">
-            <h3 className="text-lg font-semibold mb-4">
+          <CardContent className={UI.containers.cardContent}>
+            <h3 className={cn(UI.text.title, "mb-4")}>
               GWD #{diffs[0].gwd_number}
-              {diffs[0].isNew && <span className="ml-2 text-green-500">(New Record)</span>}
+              {diffs[0].isNew && (
+                <span className={UI.text.success + " ml-2"}>
+                  (New Record)
+                </span>
+              )}
             </h3>
             <div className="space-y-2">
               {diffs.map((diff, index) => (
-                <div key={index} className="flex items-center gap-4 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                  <span className="font-medium w-1/4">{diff.field}</span>
+                <div 
+                  key={index} 
+                  className={cn(
+                    UI.containers.comparison,
+                    "flex items-center gap-4 p-2 rounded"
+                  )}
+                >
+                  <span className={cn(UI.text.label, "w-1/4")}>
+                    {diff.field}
+                  </span>
                   <div className="flex-1 flex gap-4">
                     {!diff.isNew && (
                       <Button
                         variant="outline"
                         className={cn(
                           "flex-1",
-                          "hover:bg-green-50 dark:hover:bg-green-900"
+                          UI.button.comparison.existing
                         )}
                         onClick={() => onResolution(diff.gwd_id!, diff.field, diff.existing)}
                       >
@@ -70,8 +83,8 @@ export default function GWDComparison({ differences, onResolution }: GWDComparis
                       className={cn(
                         "flex-1",
                         diff.isNew 
-                          ? "bg-blue-500 hover:bg-blue-600 text-white"
-                          : "hover:bg-blue-50 dark:hover:bg-blue-900"
+                          ? UI.button.comparison.new
+                          : UI.button.comparison.imported
                       )}
                       onClick={() => onResolution(diff.gwd_id, diff.field, diff.imported, diff.isNew)}
                     >

@@ -17,6 +17,7 @@ import { Label } from '@/components/ui/label'
 import { createClient } from '@/utils/supabase/client'
 import { X, Edit2, Save, AlertTriangle, FileText, ShoppingCart } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { UI } from '@/lib/constants/ui'
 
 interface AFEDetailsProps {
   afe: AFEWithPipelines
@@ -198,17 +199,19 @@ export default function AFEDetails({
   }
 
   return (
-    <div className="space-y-6">
+    <div className={UI.containers.section}>
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-md text-red-600 dark:text-red-400">
+        <div className={UI.containers.errorBox}>
           {error}
         </div>
       )}
 
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold">{editedAFE.afe_number}</h2>
-          <p className="text-gray-500">Created: {new Date(editedAFE.created_date).toLocaleDateString()}</p>
+          <h2 className={UI.text.title}>{editedAFE.afe_number}</h2>
+          <p className={UI.text.subtitle}>
+            Created: {new Date(editedAFE.created_date).toLocaleDateString()}
+          </p>
         </div>
         <div className="flex gap-2">
           {isEditing ? (
@@ -248,7 +251,7 @@ export default function AFEDetails({
               <Label>Status</Label>
               {isEditing ? (
                 <select
-                  className="w-full border rounded-md px-3 py-2 mt-1"
+                  className={UI.inputs.select}
                   value={editedAFE.status}
                   onChange={e => setEditedAFE(prev => ({ 
                     ...prev, 
@@ -282,7 +285,7 @@ export default function AFEDetails({
                   onChange={e => setEditedAFE(prev => ({ ...prev, description: e.target.value }))}
                 />
               ) : (
-                <p className="text-gray-600 dark:text-gray-300">{editedAFE.description || 'No description'}</p>
+                <p className={UI.text.subtitle}>{editedAFE.description || 'No description'}</p>
               )}
             </div>
 
@@ -290,7 +293,7 @@ export default function AFEDetails({
               <Label>System</Label>
               {isEditing ? (
                 <select
-                  className="w-full border rounded-md px-3 py-2 mt-1"
+                  className={UI.inputs.select}
                   value={editedAFE.system_id}
                   onChange={e => setEditedAFE(prev => ({ 
                     ...prev, 
@@ -304,14 +307,14 @@ export default function AFEDetails({
                   ))}
                 </select>
               ) : (
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className={UI.text.subtitle}>
                   {getSystemName(editedAFE.system_id)}
                 </p>
               )}
             </div>
 
             <div>
-              <Label>Pipelines</Label>
+              <Label className={UI.text.label}>Pipelines</Label>
               {isEditing ? (
                 <div className="space-y-2">
                   <div className="flex gap-2">
@@ -323,8 +326,10 @@ export default function AFEDetails({
                     <Button onClick={addPipeline} type="button">Add</Button>
                   </div>
                   {editedAFE.afe_pipelines?.map((pipelineEntry) => (
-                    <div key={pipelineEntry.afe_pipeline_id} className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                      <span>{pipelineEntry.pipeline.pipeline_name}</span>
+                    <div key={pipelineEntry.afe_pipeline_id} 
+                      className={`flex justify-between items-center ${UI.listItem.base}`}
+                    >
+                      <span className={UI.text.subtitle}>{pipelineEntry.pipeline.pipeline_name}</span>
                       <Button variant="ghost" size="sm" onClick={() => removePipeline(pipelineEntry.afe_pipeline_id)}>
                         <X className="h-4 w-4" />
                       </Button>
@@ -355,26 +360,26 @@ export default function AFEDetails({
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Budget</Label>
-                <p className="text-2xl font-bold">${editedAFE.budget.toLocaleString()}</p>
+                <Label className={UI.text.label}>Budget</Label>
+                <p className={UI.statsCard.value}>${editedAFE.budget.toLocaleString()}</p>
               </div>
               <div>
-                <Label>Total Costs</Label>
-                <p className={`text-2xl font-bold ${isOverBudget ? 'text-red-600 dark:text-red-400' : ''}`}>
+                <Label className={UI.text.label}>Total Costs</Label>
+                <p className={`${UI.statsCard.value} ${isOverBudget ? 'text-destructive' : ''}`}>
                   ${totalCosts.toLocaleString()}
                 </p>
               </div>
             </div>
 
             {isOverBudget && (
-              <div className="flex items-center gap-2 text-red-600 dark:text-red-400">
+              <div className="flex items-center gap-2 text-destructive">
                 <AlertTriangle className="h-4 w-4" />
                 <span>Over budget by ${(totalCosts - editedAFE.budget).toLocaleString()}</span>
               </div>
             )}
 
             <div className="pt-4 border-t">
-              <div className="space-y-2">
+              <div className={UI.text.subtitle + " space-y-2"}>
                 <div className="flex justify-between">
                   <span>GWD Costs:</span>
                   <span>${totalGWDCosts.toLocaleString()}</span>
@@ -396,38 +401,37 @@ export default function AFEDetails({
                 <FileText className="h-5 w-5" />
                 GWDs
               </CardTitle>
-              <span className="text-sm text-gray-500">{gwds.length} total</span>
+              <span className={UI.text.subtitle}>{gwds.length} total</span>
             </div>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {gwds.map(gwd => {
-                return (
-                  <div key={gwd.gwd_id} className="flex justify-between items-start p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">
-                    <div>
-                      <p className="font-medium">GWD #{gwd.gwd_number}</p>
-                      <Badge variant="outline" className="mt-1">{gwd.status}</Badge>
-                      <div className="mt-2 text-sm text-gray-500 space-y-1">
-                        {gwd.b_sleeve > 0 && (
-                          <p>B-Sleeve Count: {gwd.b_sleeve}</p>
-                        )}
-                        {gwd.petro_sleeve > 0 && (
-                          <p>Petro-Sleeve Count: {gwd.petro_sleeve}</p>
-                        )}
-                        {gwd.composite > 0 && (
-                          <p>Composite Count: {gwd.composite}</p>
-                        )}
-                        {gwd.recoat > 0 && (
-                          <p>Recoat Count: {gwd.recoat}</p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-medium">${(gwd.land_cost + gwd.dig_cost).toLocaleString()}</p>
+              {gwds.map(gwd => (
+                <div key={gwd.gwd_id} 
+                  className={`flex justify-between items-start ${UI.listItem.base} ${UI.listItem.interactive}`}
+                >
+                  <div>
+                    <p className={UI.text.title}>GWD #{gwd.gwd_number}</p>
+                    <div className={UI.text.subtitle + " space-y-1"}>
+                      {gwd.b_sleeve > 0 && (
+                        <p>B-Sleeve Count: {gwd.b_sleeve}</p>
+                      )}
+                      {gwd.petro_sleeve > 0 && (
+                        <p>Petro-Sleeve Count: {gwd.petro_sleeve}</p>
+                      )}
+                      {gwd.composite > 0 && (
+                        <p>Composite Count: {gwd.composite}</p>
+                      )}
+                      {gwd.recoat > 0 && (
+                        <p>Recoat Count: {gwd.recoat}</p>
+                      )}
                     </div>
                   </div>
-                )
-              })}
+                  <div className="text-right">
+                    <p className={UI.text.title}>${(gwd.land_cost + gwd.dig_cost).toLocaleString()}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </CardContent>
         </Card>
@@ -440,7 +444,7 @@ export default function AFEDetails({
                 <ShoppingCart className="h-5 w-5" />
                 Purchase Orders
               </CardTitle>
-              <span className="text-sm text-gray-500">{purchaseOrders.length} total</span>
+              <span className={UI.text.subtitle}>{purchaseOrders.length} total</span>
             </div>
           </CardHeader>
           <CardContent>
@@ -450,18 +454,18 @@ export default function AFEDetails({
                   po.change_orders.reduce((sum: number, co: ChangeOrder) => sum + co.value, 0)
 
                 return (
-                  <div key={po.po_id} className="space-y-2 p-2 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg">
+                  <div key={po.po_id} className={`${UI.listItem.base} ${UI.listItem.interactive}`}>
                     <div className="flex justify-between items-start">
                       <div>
-                        <p className="font-medium">PO #{po.po_number}</p>
-                        <p className="text-sm text-gray-500">{po.vendor.vendor_name}</p>
+                        <p className={UI.text.title}>PO #{po.po_number}</p>
+                        <p className={UI.text.subtitle}>{po.vendor.vendor_name}</p>
                       </div>
-                      <p className="font-medium">${poTotal.toLocaleString()}</p>
+                      <p className={UI.text.title}>${poTotal.toLocaleString()}</p>
                     </div>
                     {po.change_orders.length > 0 && (
-                      <div className="pl-4 border-l-2 border-gray-200 dark:border-gray-700">
+                      <div className={UI.text.subtitle + " pl-4 border-l-2 border-border"}>
                         {po.change_orders.map(co => (
-                          <div key={co.co_id} className="flex justify-between text-sm">
+                          <div key={co.co_id} className="flex justify-between">
                             <span>CO #{co.co_number}</span>
                             <span>${co.value.toLocaleString()}</span>
                           </div>
@@ -489,7 +493,7 @@ export default function AFEDetails({
               placeholder="Add notes..."
             />
           ) : (
-            <p className="text-gray-600 dark:text-gray-300">{editedAFE.notes || 'No notes'}</p>
+            <p className={UI.text.subtitle}>{editedAFE.notes || 'No notes'}</p>
           )}
         </CardContent>
       </Card>

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { createClient } from '@/utils/supabase/client'
 import { X, Edit2, Save, Package } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { UI } from '@/lib/constants/ui'
 
 interface MaterialDetailsProps {
   material: Material
@@ -47,17 +48,19 @@ export default function MaterialDetails({
   }
 
   return (
-    <div className="space-y-6">
+    <div className={UI.containers.section}>
       {error && (
-        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 p-4 rounded-md text-red-600 dark:text-red-400">
+        <div className={UI.containers.errorBox}>
           {error}
         </div>
       )}
 
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold">{material.vendor.vendor_name}</h2>
-          <p className="text-gray-500">Created: {new Date(material.created_date).toLocaleDateString()}</p>
+          <h2 className={UI.text.title + " text-2xl"}>{material.vendor.vendor_name}</h2>
+          <p className={UI.text.subtitle}>
+            Created: {new Date(material.created_date).toLocaleDateString()}
+          </p>
         </div>
         <div className="flex gap-2">
           {isEditing ? (
@@ -96,7 +99,7 @@ export default function MaterialDetails({
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Vendor Reference ID</Label>
+              <Label className={UI.text.label}>Vendor Reference ID</Label>
               {isEditing ? (
                 <Input
                   value={editedMaterial.vendor_ref_id || ''}
@@ -106,14 +109,14 @@ export default function MaterialDetails({
                   }))}
                 />
               ) : (
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className={UI.text.subtitle}>
                   {editedMaterial.vendor_ref_id || 'N/A'}
                 </p>
               )}
             </div>
 
             <div>
-              <Label>Price</Label>
+              <Label className={UI.text.label}>Price</Label>
               {isEditing ? (
                 <Input
                   type="number"
@@ -124,14 +127,14 @@ export default function MaterialDetails({
                   }))}
                 />
               ) : (
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className={UI.text.subtitle}>
                   ${editedMaterial.price.toLocaleString()}
                 </p>
               )}
             </div>
 
             <div>
-              <Label>Length (ft)</Label>
+              <Label className={UI.text.label}>Length (ft)</Label>
               {isEditing ? (
                 <Input
                   type="number"
@@ -142,14 +145,14 @@ export default function MaterialDetails({
                   }))}
                 />
               ) : (
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className={UI.text.subtitle}>
                   {editedMaterial.length ? `${editedMaterial.length} ft` : 'N/A'}
                 </p>
               )}
             </div>
 
             <div>
-              <Label>Notes</Label>
+              <Label className={UI.text.label}>Notes</Label>
               {isEditing ? (
                 <Input
                   value={editedMaterial.notes || ''}
@@ -159,7 +162,7 @@ export default function MaterialDetails({
                   }))}
                 />
               ) : (
-                <p className="text-gray-600 dark:text-gray-300">
+                <p className={UI.text.subtitle}>
                   {editedMaterial.notes || 'No notes'}
                 </p>
               )}

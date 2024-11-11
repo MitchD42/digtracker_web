@@ -1,14 +1,16 @@
-import { useState } from 'react'
-import { GWDWithAFE } from '@/types/database'
+import { useState, useMemo } from 'react'
+import { GWDWithAFE, AFEWithPipelines } from '@/types/database'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { createClient } from '@/utils/supabase/client'
 import { X, Edit2, Save, ChevronDown, ChevronUp } from 'lucide-react'
+import { UI } from '@/lib/constants/ui'
 
 interface GWDDetailsProps {
   gwd: GWDWithAFE
+  afes: AFEWithPipelines[]
   onClose: () => void
   onUpdate: () => void
 }
@@ -47,7 +49,7 @@ interface EditableGWD extends Omit<GWDWithAFE, 'status'> {
   actual_inspection_length?: number | null;
 }
 
-export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) {
+export default function GWDDetails({ gwd, afes, onClose, onUpdate }: GWDDetailsProps) {
   const supabase = createClient()
   const [isEditing, setIsEditing] = useState(false)
   const [editedGWD, setEditedGWD] = useState<EditableGWD>(gwd)
@@ -58,9 +60,10 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
       const { error } = await supabase
         .from('gwds')
         .update({
-          status: editedGWD.status,
+          afe_id: editedGWD.afe_id,
           system: editedGWD.system,
           pipeline: editedGWD.pipeline,
+          status: editedGWD.status,
           land_cost: editedGWD.land_cost,
           dig_cost: editedGWD.dig_cost,
           b_sleeve: editedGWD.b_sleeve,
@@ -102,12 +105,31 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
     }
   }
 
+  const handleAFEChange = (afeId: number) => {
+    const selectedAFE = afes.find(afe => afe.afe_id === afeId)
+    if (selectedAFE) {
+      console.log('Selected AFE:', selectedAFE)
+      setEditedGWD(prev => ({
+        ...prev,
+        afe_id: afeId,
+        afe: selectedAFE,
+        system: selectedAFE.system?.system_name || '',
+        pipeline: ''
+      }))
+    }
+  }
+
+  const availablePipelines = useMemo(() => {
+    const selectedAFE = afes.find(afe => afe.afe_id === editedGWD.afe_id)
+    return selectedAFE?.afe_pipelines?.map(ap => ap.pipeline) || []
+  }, [afes, editedGWD.afe_id])
+
   return (
-    <div className="space-y-6">
+    <div className={UI.containers.section}>
       <div className="flex justify-between items-start">
         <div>
-          <h2 className="text-2xl font-bold">GWD #{gwd.gwd_number}</h2>
-          <p className="text-gray-500">AFE: {gwd.afe?.afe_number}</p>
+          <h2 className={UI.text.title + " text-2xl"}>GWD #{gwd.gwd_number}</h2>
+          <p className={UI.text.subtitle}>AFE: {gwd.afe?.afe_number}</p>
         </div>
         <div className="space-x-2">
           {isEditing ? (
@@ -135,10 +157,10 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Status</Label>
+              <Label className={UI.text.label}>Status</Label>
               {isEditing ? (
                 <select
-                  className="w-full px-3 py-2 border rounded-md"
+                  className={UI.inputs.select}
                   value={editedGWD.status}
                   onChange={e => setEditedGWD((prev: EditableGWD) => ({
                     ...prev,
@@ -155,36 +177,57 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
                   <option value="No Longer Mine">No Longer Mine</option>
                 </select>
               ) : (
-                <p className="text-lg">{editedGWD.status}</p>
+                <p className={UI.text.subtitle}>{editedGWD.status}</p>
               )}
             </div>
+
             <div>
-              <Label>System</Label>
+              <Label className={UI.text.label}>AFE</Label>
               {isEditing ? (
-                <Input
-                  value={editedGWD.system || ''}
-                  onChange={e => setEditedGWD((prev: EditableGWD) => ({
-                    ...prev,
-                    system: e.target.value
-                  }))}
-                />
+                <select
+                  className={UI.inputs.select}
+                  value={editedGWD.afe_id || ''}
+                  onChange={(e) => handleAFEChange(Number(e.target.value))}
+                >
+                  <option value="">Select AFE</option>
+                  {afes.map(afe => (
+                    <option key={afe.afe_id} value={afe.afe_id}>
+                      {afe.afe_number}
+                    </option>
+                  ))}
+                </select>
               ) : (
-                <p className="text-lg">{editedGWD.system || 'N/A'}</p>
+                <p className={UI.text.subtitle}>{editedGWD.afe?.afe_number || 'No AFE'}</p>
               )}
             </div>
-            <div>
-              <Label>Pipeline</Label>
-              {isEditing ? (
-                <Input
-                  value={editedGWD.pipeline || ''}
-                  onChange={e => setEditedGWD((prev: EditableGWD) => ({
-                    ...prev,
-                    pipeline: e.target.value
-                  }))}
-                />
-              ) : (
-                <p className="text-lg">{editedGWD.pipeline || 'N/A'}</p>
-              )}
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className={UI.text.label}>System</Label>
+                <p className={UI.text.subtitle}>{editedGWD.system || 'N/A'}</p>
+              </div>
+              <div>
+                <Label className={UI.text.label}>Pipeline</Label>
+                {isEditing ? (
+                  <select
+                    className={UI.inputs.select}
+                    value={editedGWD.pipeline || ''}
+                    onChange={(e) => setEditedGWD(prev => ({
+                      ...prev,
+                      pipeline: e.target.value
+                    }))}
+                  >
+                    <option value="">Select Pipeline</option>
+                    {availablePipelines.map(pipeline => (
+                      <option key={pipeline.pipeline_id} value={pipeline.pipeline_name}>
+                        {pipeline.pipeline_name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <p className={UI.text.subtitle}>{editedGWD.pipeline || 'N/A'}</p>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -432,39 +475,39 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>SMYS</Label>
-                  <p className="text-lg">{editedGWD.smys || 'N/A'}</p>
+                  <Label className={UI.text.label}>SMYS</Label>
+                  <p className={UI.text.subtitle}>{editedGWD.smys || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label>MOP</Label>
-                  <p className="text-lg">{editedGWD.mop || 'N/A'}</p>
+                  <Label className={UI.text.label}>MOP</Label>
+                  <p className={UI.text.subtitle}>{editedGWD.mop || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label>Design Factor</Label>
-                  <p className="text-lg">{editedGWD.design_factor || 'N/A'}</p>
+                  <Label className={UI.text.label}>Design Factor</Label>
+                  <p className={UI.text.subtitle}>{editedGWD.design_factor || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label>Class Location</Label>
-                  <p className="text-lg">{editedGWD.class_location || 'N/A'}</p>
+                  <Label className={UI.text.label}>Class Location</Label>
+                  <p className={UI.text.subtitle}>{editedGWD.class_location || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label>Class Location Factor</Label>
-                  <p className="text-lg">{editedGWD.class_location_factor || 'N/A'}</p>
+                  <Label className={UI.text.label}>Class Location Factor</Label>
+                  <p className={UI.text.subtitle}>{editedGWD.class_location_factor || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label>P-Failure</Label>
-                  <p className="text-lg">{editedGWD.p_failure || 'N/A'}</p>
+                  <Label className={UI.text.label}>P-Failure</Label>
+                  <p className={UI.text.subtitle}>{editedGWD.p_failure || 'N/A'}</p>
                 </div>
               </div>
 
               <div>
-                <Label>Target Features</Label>
-                <p className="text-lg">{editedGWD.target_features || 'N/A'}</p>
+                <Label className={UI.text.label}>Target Features</Label>
+                <p className={UI.text.subtitle}>{editedGWD.target_features || 'N/A'}</p>
               </div>
 
               <div>
-                <Label>Dig Criteria</Label>
-                <p className="text-lg">{editedGWD.dig_criteria || 'N/A'}</p>
+                <Label className={UI.text.label}>Dig Criteria</Label>
+                <p className={UI.text.subtitle}>{editedGWD.dig_criteria || 'N/A'}</p>
               </div>
             </CardContent>
           </Card>
@@ -476,18 +519,18 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Latitude</Label>
-                  <p className="text-lg">{editedGWD.latitude || 'N/A'}</p>
+                  <Label className={UI.text.label}>Latitude</Label>
+                  <p className={UI.text.subtitle}>{editedGWD.latitude || 'N/A'}</p>
                 </div>
                 <div>
-                  <Label>Longitude</Label>
-                  <p className="text-lg">{editedGWD.longitude || 'N/A'}</p>
+                  <Label className={UI.text.label}>Longitude</Label>
+                  <p className={UI.text.subtitle}>{editedGWD.longitude || 'N/A'}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label>Land Cost</Label>
+                  <Label className={UI.text.label}>Land Cost</Label>
                   {isEditing ? (
                     <Input
                       type="number"
@@ -498,11 +541,11 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
                       }))}
                     />
                   ) : (
-                    <p className="text-lg">${editedGWD.land_cost?.toLocaleString() || 'N/A'}</p>
+                    <p className={UI.text.subtitle}>${editedGWD.land_cost?.toLocaleString() || 'N/A'}</p>
                   )}
                 </div>
                 <div>
-                  <Label>Dig Cost</Label>
+                  <Label className={UI.text.label}>Dig Cost</Label>
                   {isEditing ? (
                     <Input
                       type="number"
@@ -513,7 +556,7 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
                       }))}
                     />
                   ) : (
-                    <p className="text-lg">${editedGWD.dig_cost?.toLocaleString() || 'N/A'}</p>
+                    <p className={UI.text.subtitle}>${editedGWD.dig_cost?.toLocaleString() || 'N/A'}</p>
                   )}
                 </div>
               </div>
@@ -526,17 +569,17 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>Program Engineer</Label>
-                <p className="text-lg">{editedGWD.program_engineer || 'N/A'}</p>
+                <Label className={UI.text.label}>Program Engineer</Label>
+                <p className={UI.text.subtitle}>{editedGWD.program_engineer || 'N/A'}</p>
               </div>
 
               <div>
-                <Label>Program Engineer Comments</Label>
-                <p className="text-lg">{editedGWD.program_engineer_comments || 'N/A'}</p>
+                <Label className={UI.text.label}>Program Engineer Comments</Label>
+                <p className={UI.text.subtitle}>{editedGWD.program_engineer_comments || 'N/A'}</p>
               </div>
 
               <div>
-                <Label>Project Engineer</Label>
+                <Label className={UI.text.label}>Project Engineer</Label>
                 {isEditing ? (
                   <Input
                     value={editedGWD.project_engineer || ''}
@@ -546,12 +589,12 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
                     }))}
                   />
                 ) : (
-                  <p className="text-lg">{editedGWD.project_engineer || 'N/A'}</p>
+                  <p className={UI.text.subtitle}>{editedGWD.project_engineer || 'N/A'}</p>
                 )}
               </div>
 
               <div>
-                <Label>Post Execution Comments</Label>
+                <Label className={UI.text.label}>Post Execution Comments</Label>
                 {isEditing ? (
                   <Input
                     value={editedGWD.post_execution_comments || ''}
@@ -561,13 +604,13 @@ export default function GWDDetails({ gwd, onClose, onUpdate }: GWDDetailsProps) 
                     }))}
                   />
                 ) : (
-                  <p className="text-lg">{editedGWD.post_execution_comments || 'N/A'}</p>
+                  <p className={UI.text.subtitle}>{editedGWD.post_execution_comments || 'N/A'}</p>
                 )}
               </div>
 
               <div>
-                <Label>Last Updated</Label>
-                <p className="text-lg">{editedGWD.last_updated || 'N/A'}</p>
+                <Label className={UI.text.label}>Last Updated</Label>
+                <p className={UI.text.subtitle}>{editedGWD.last_updated || 'N/A'}</p>
               </div>
             </CardContent>
           </Card>
