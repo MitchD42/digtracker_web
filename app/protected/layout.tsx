@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { LayoutDashboard, FileText, Wrench, ShoppingCart, Database, Package, Upload, FileOutput, LogOut } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import { ThemeSwitcher } from '@/components/theme-switcher'
 
 export default function ProtectedLayout({
   children,
@@ -84,7 +85,7 @@ export default function ProtectedLayout({
           </nav>
         </div>
         
-        {/* Logout button */}
+        {/* Footer with just logout - removed theme switcher */}
         <div className="p-4 border-t border-border">
           <button
             onClick={handleLogout}
@@ -98,6 +99,11 @@ export default function ProtectedLayout({
 
       {/* Main content */}
       <div className="flex-1 ml-64">
+        {/* Theme switcher in top-right */}
+        <div className="fixed top-4 right-4">
+          <ThemeSwitcher />
+        </div>
+        
         <main className="h-full p-8">
           {children}
         </main>
