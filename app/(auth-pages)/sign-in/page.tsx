@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { signInAction } from "@/actions"
 import { FormMessage } from "@/components/form-message"
 import { SubmitButton } from "@/components/submit-button"
@@ -12,7 +13,35 @@ import { Eye, EyeOff, ArrowRight } from "lucide-react"
 import { UI } from "@/lib/constants/ui"
 import { useSearchParams } from 'next/navigation'
 
-export default function SignIn() {
+function LoadingState() {
+  return (
+    <div className="flex items-center justify-center w-full">
+      <div className="w-full max-w-4xl p-4">
+        <Card className="overflow-hidden shadow-lg animate-pulse">
+          <div className="md:grid md:grid-cols-2">
+            {/* Left side: Decorative */}
+            <div className="relative hidden md:block bg-gradient-to-br from-blue-600/50 via-teal-600/50 to-emerald-700/50">
+              <div className="h-full" />
+            </div>
+
+            {/* Right side: Loading skeleton */}
+            <div className="p-8 space-y-4">
+              <div className="h-8 bg-muted rounded w-1/2" />
+              <div className="h-4 bg-muted rounded w-3/4" />
+              <div className="space-y-4 mt-8">
+                <div className="h-10 bg-muted rounded" />
+                <div className="h-10 bg-muted rounded" />
+                <div className="h-10 bg-muted rounded" />
+              </div>
+            </div>
+          </div>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+function SignInContent() {
   const [showPassword, setShowPassword] = useState(false)
   const searchParams = useSearchParams()
   
@@ -121,5 +150,13 @@ export default function SignIn() {
         </Card>
       </div>
     </div>
+  )
+}
+
+export default function SignIn() {
+  return (
+    <Suspense fallback={<LoadingState />}>
+      <SignInContent />
+    </Suspense>
   )
 }
