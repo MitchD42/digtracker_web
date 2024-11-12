@@ -1,15 +1,34 @@
+'use client'
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { UI } from '@/lib/constants/ui'
+import { useState } from 'react'
 
 interface ReportFiltersProps {
   onFilterChange?: (filters: any) => void
 }
 
 export function ReportFilters({ onFilterChange }: ReportFiltersProps) {
+  const [filters, setFilters] = useState({
+    startDate: '',
+    endDate: '',
+    status: '',
+    afe: ''
+  })
+
+  const handleFilterChange = (key: string, value: string) => {
+    const newFilters = { ...filters, [key]: value }
+    setFilters(newFilters)
+  }
+
+  const handleApplyFilters = () => {
+    onFilterChange?.(filters)
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -20,8 +39,16 @@ export function ReportFilters({ onFilterChange }: ReportFiltersProps) {
         <div className="space-y-2">
           <Label className={UI.text.label}>Date Range</Label>
           <div className="grid grid-cols-2 gap-2">
-            <Input type="date" placeholder="Start Date" />
-            <Input type="date" placeholder="End Date" />
+            <Input 
+              type="date" 
+              value={filters.startDate}
+              onChange={(e) => handleFilterChange('startDate', e.target.value)}
+            />
+            <Input 
+              type="date" 
+              value={filters.endDate}
+              onChange={(e) => handleFilterChange('endDate', e.target.value)}
+            />
           </div>
         </div>
 
@@ -56,7 +83,7 @@ export function ReportFilters({ onFilterChange }: ReportFiltersProps) {
         </div>
 
         {/* Apply Filters Button */}
-        <Button className="w-full">Apply Filters</Button>
+        <Button onClick={handleApplyFilters}>Apply Filters</Button>
       </CardContent>
     </Card>
   )

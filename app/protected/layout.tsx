@@ -1,16 +1,28 @@
+'use client'
+
 import Link from 'next/link'
-import { LayoutDashboard, FileText, Wrench, ShoppingCart, Database, Package, Upload, FileOutput } from 'lucide-react'
+import { LayoutDashboard, FileText, Wrench, ShoppingCart, Database, Package, Upload, FileOutput, LogOut } from 'lucide-react'
+import { createClient } from '@/utils/supabase/client'
+import { useRouter } from 'next/navigation'
 
 export default function ProtectedLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  const router = useRouter()
+  const supabase = createClient()
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    router.push('/sign-in')
+  }
+
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       {/* Sidebar */}
-      <div className="w-64 bg-card shadow-lg">
-        <div className="p-4">
+      <div className="fixed inset-y-0 w-64 bg-card shadow-lg flex flex-col">
+        <div className="p-4 flex-1">
           <h1 className="text-2xl font-bold text-primary mb-8">Dig Tracker</h1>
           <nav className="space-y-2">
             <Link 
@@ -71,11 +83,24 @@ export default function ProtectedLayout({
             </Link>
           </nav>
         </div>
+        
+        {/* Logout button */}
+        <div className="p-4 border-t border-border">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center px-4 py-2 text-muted-foreground hover:bg-accent hover:text-accent-foreground rounded-lg transition-colors"
+          >
+            <LogOut className="h-5 w-5 mr-3" />
+            Logout
+          </button>
+        </div>
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-auto bg-background">
-        {children}
+      <div className="flex-1 ml-64">
+        <main className="h-full p-8">
+          {children}
+        </main>
       </div>
     </div>
   )

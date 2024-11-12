@@ -92,6 +92,7 @@ export default function ReportsPage() {
           <ReportActions 
             onExport={handleExport}
             onEmail={handleEmail}
+            data={data}
           />
         </div>
 

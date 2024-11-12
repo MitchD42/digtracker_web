@@ -5,6 +5,8 @@ import { SummaryReport } from './reports/SummaryReport'
 import { CostReport } from './reports/CostReport'
 import { StatusReport } from './reports/StatusReport'
 import { TimelineReport } from './reports/TimelineReport'
+import { useState, useEffect } from 'react'
+import Spinner from 'components/ui/spinner'
 
 interface ReportGeneratorProps {
   reportType: string
@@ -15,6 +17,37 @@ interface ReportGeneratorProps {
 }
 
 export default function ReportGenerator({ reportType, data }: ReportGeneratorProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!data.gwds || !data.costs) {
+      setError('No data available for report generation')
+    } else {
+      setError(null)
+    }
+  }, [data])
+
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-center">
+          <Spinner />
+        </div>
+      </Card>
+    )
+  }
+
+  if (error) {
+    return (
+      <Card className="p-6">
+        <div className={UI.emptyState.container}>
+          <p className={UI.emptyState.description}>{error}</p>
+        </div>
+      </Card>
+    )
+  }
+
   // Render different report based on type
   const renderReport = () => {
     switch (reportType) {
@@ -39,7 +72,15 @@ export default function ReportGenerator({ reportType, data }: ReportGeneratorPro
 
   return (
     <Card className="p-6">
-      <div id="report-content">
+      <div 
+        id="report-content" 
+        className="print:text-black print:bg-white"
+        style={{
+          // Ensure proper font rendering
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale',
+        }}
+      >
         {renderReport()}
       </div>
     </Card>
