@@ -1,11 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { motion } from 'framer-motion'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { FileText, Clipboard, ShoppingCart, BarChart2, Activity, Package } from 'lucide-react'
-import { createClient } from '@/utils/supabase/client'
-import { AFE, GWDWithAFE, PurchaseOrder, Material } from '@/types/database'
+import { FileText, Clipboard, ShoppingCart, BarChart2, Activity } from 'lucide-react'
 import { 
   getFinancialMetrics, 
   getGWDMetrics, 
@@ -22,16 +19,6 @@ import { BudgetChart } from "@/components/charts/BudgetChart"
 import { LucideIcon } from 'lucide-react'
 import { UI } from '@/lib/constants/ui'
 
-interface POData extends PurchaseOrder {
-  change_orders: Array<{
-    value: number
-  }>
-  initial_value: number
-  po_number: string
-  status: 'Open' | 'Closed'
-  created_date: string
-}
-
 interface FinancialMetric {
   name: string
   value: number
@@ -40,7 +27,6 @@ interface FinancialMetric {
 }
 
 export default function Dashboard() {
-  const supabase = createClient()
   const [metrics, setMetrics] = useState<{
     financial: FinancialMetrics | undefined
     gwdStatus: GWDMetrics | undefined
@@ -85,7 +71,11 @@ export default function Dashboard() {
       name: 'GWDs', 
       icon: Clipboard, 
       count: metrics.gwdStatus?.totalCount || 0,
-      subtext: `${metrics.gwdStatus?.statusCounts?.['Complete'] || 0} completed, ${metrics.gwdStatus?.statusCounts?.['In Progress'] || 0} in progress`,
+      subtext: `${metrics.gwdStatus?.statusCounts?.['Dig Completed'] || 0} completed, ${
+        (metrics.gwdStatus?.statusCounts?.['Site Selected'] || 0) +
+        (metrics.gwdStatus?.statusCounts?.['With CLEIR'] || 0) +
+        (metrics.gwdStatus?.statusCounts?.['CLEIR Approved'] || 0)
+      } in progress`,
       color: 'from-green-500 to-green-600' 
     },
     { 

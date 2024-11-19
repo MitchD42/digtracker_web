@@ -4,14 +4,6 @@ import { Input } from '@/components/ui/input'
 import { useState } from 'react'
 import { ArrowUpDown, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from "@/components/ui/command"
-import { X, Check } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { UI } from '@/lib/constants/ui'
 import { GWDStatus, GWD_STATUS_OPTIONS } from '@/lib/constants/gwd-statuses'
@@ -73,8 +65,6 @@ const STATUS_VARIANTS = {
   'With CLEIR': 'secondary',
   default: 'outline'
 } as const
-
-const STATUS_OPTIONS = GWD_STATUS_OPTIONS
 
 export default function GWDList({ gwds, onSelect }: GWDListProps) {
   const [searchTerm, setSearchTerm] = useState('')
@@ -176,7 +166,7 @@ export default function GWDList({ gwds, onSelect }: GWDListProps) {
             
             <div className={UI.containers.grid}>
               <FilterButtonGroup
-                options={STATUS_OPTIONS}
+                options={GWD_STATUS_OPTIONS}
                 selected={statusFilters}
                 onChange={setStatusFilters}
                 label="Filter by Status"

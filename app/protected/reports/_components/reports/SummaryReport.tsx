@@ -3,6 +3,7 @@ import { GWDWithAFE } from '@/types/database'
 import { UI } from '@/lib/constants/ui'
 import { StatusChart } from '@/app/protected/reports/_components/visualizations/StatusChart'
 import { CostOverview } from '@/app/protected/reports/_components/visualizations/CostOverview'
+import { GWDStatus, GWD_STATUSES } from '@/lib/constants/gwd-statuses'
 
 interface SummaryReportProps {
   data: {
@@ -16,8 +17,17 @@ export function SummaryReport({ data }: SummaryReportProps) {
 
   // Calculate summary statistics
   const totalGWDs = data.gwds.length
-  const activeGWDs = data.gwds.filter(gwd => gwd.status === 'In Progress').length
-  const completedGWDs = data.gwds.filter(gwd => gwd.status === 'Complete').length
+  
+  const activeGWDs = data.gwds.filter(gwd => 
+    gwd.status === GWD_STATUSES['Site Selected'] || 
+    gwd.status === GWD_STATUSES['With CLEIR'] || 
+    gwd.status === GWD_STATUSES['CLEIR Approved']
+  ).length
+  
+  const completedGWDs = data.gwds.filter(gwd => 
+    gwd.status === GWD_STATUSES['Dig Completed'] || 
+    gwd.status === GWD_STATUSES['Dig Report Received']
+  ).length
   
   const totalBudget = data.gwds.reduce((sum, gwd) => sum + (gwd.initial_budget || 0), 0)
   const totalCost = data.gwds.reduce((sum, gwd) => sum + (gwd.land_cost || 0) + (gwd.dig_cost || 0), 0)

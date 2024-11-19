@@ -1,5 +1,6 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { GWDWithAFE } from '@/types/database'
+import { GWD_STATUSES } from '@/lib/constants/gwd-statuses'
 
 interface TimelineChartProps {
   data: GWDWithAFE[]
@@ -11,9 +12,19 @@ export function TimelineChart({ data }: TimelineChartProps) {
     .sort((a, b) => new Date(a.created_date).getTime() - new Date(b.created_date).getTime())
     .map(gwd => ({
       date: new Date(gwd.created_date).toLocaleDateString(),
-      'Completed GWDs': gwd.status === 'Complete' ? 1 : 0,
-      'Active GWDs': gwd.status === 'In Progress' ? 1 : 0,
-      'Planned GWDs': gwd.status === 'Not Started' ? 1 : 0
+      'Completed GWDs': (
+        gwd.status === GWD_STATUSES['Dig Completed'] || 
+        gwd.status === GWD_STATUSES['Dig Report Received']
+      ) ? 1 : 0,
+      'Active GWDs': (
+        gwd.status === GWD_STATUSES['Site Selected'] || 
+        gwd.status === GWD_STATUSES['With CLEIR'] || 
+        gwd.status === GWD_STATUSES['CLEIR Approved']
+      ) ? 1 : 0,
+      'Other GWDs': (
+        gwd.status === GWD_STATUSES['Dig Cancelled'] || 
+        gwd.status === GWD_STATUSES['Dig Postponed']
+      ) ? 1 : 0
     }))
 
   return (
@@ -39,7 +50,7 @@ export function TimelineChart({ data }: TimelineChartProps) {
           />
           <Line 
             type="monotone" 
-            dataKey="Planned GWDs" 
+            dataKey="Other GWDs" 
             stroke="#6b7280" 
             strokeWidth={2} 
           />
