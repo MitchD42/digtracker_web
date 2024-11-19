@@ -46,11 +46,31 @@ export default function ImportPage() {
     
     Papa.parse<any>(file, {
       header: true,
-      transformHeader: (header: string) => importHandler.transformHeader(header),
-      transform: (value: string, field: string) => importHandler.transformValue(value, field),
+      transformHeader: (header: string) => {
+        const transformed = importHandler.transformHeader(header)
+        console.log(`Header transform: ${header} -> ${transformed}`)
+        return transformed
+      },
+      transform: (value: string, field: string) => {
+        const transformed = importHandler.transformValue(value, field)
+        if (field === 'digtracker_id') {
+          console.log(`Value transform for ${field}: ${value} -> ${transformed}`)
+        }
+        return transformed
+      },
       complete: async (results: Papa.ParseResult<any>) => {
         try {
           console.group('📥 CSV Import Process')
+          
+          // Validate results
+          if (!results.data || !Array.isArray(results.data)) {
+            throw new Error('Invalid CSV data structure')
+          }
+
+          if (results.data.length === 0) {
+            throw new Error('CSV file is empty')
+          }
+
           console.log('1. CSV Data:', {
             totalRows: results.data.length,
             sampleRow: results.data[0] as Record<string, unknown>,
@@ -63,6 +83,12 @@ export default function ImportPage() {
             existingGWDs: existingData,
             differences: newDifferences
           } = await importHandler.processImportedData(results.data)
+
+          console.log('2. Process Results:', {
+            processedCount: processedData?.length,
+            existingCount: existingData?.length,
+            differencesCount: Object.keys(newDifferences || {}).length
+          })
 
           setImportedGWDs(processedData)
           setExistingGWDs(existingData)

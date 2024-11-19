@@ -10,6 +10,11 @@ export function chunk<T>(array: T[], size: number): T[][] {
 
 export const headerMap: { [key: string]: string } = {
   'ID': 'digtracker_id',
+  'Id': 'digtracker_id',
+  'id': 'digtracker_id',
+  'Digtracker ID': 'digtracker_id',
+  'DigTracker ID': 'digtracker_id',
+  'Digtracker Id': 'digtracker_id',
   'System': 'system',
   'Pipeline': 'pipeline',
   'Execution Year': 'execution_year',
@@ -45,10 +50,15 @@ export const headerMap: { [key: string]: string } = {
 }
 
 export const transformValue = (value: string | null | undefined, field: string): any => {
+  // Log incoming values for debugging
+  if (field === 'digtracker_id') {
+    console.debug('transformValue for digtracker_id:', { raw: value, type: typeof value })
+  }
+
+  // Early returns for null/undefined/empty
   if (value === null || value === undefined) {
     return null;
   }
-
   if (field === '_ignore_') return undefined
   if (value === '') return null
   
@@ -100,18 +110,27 @@ export const transformValue = (value: string | null | undefined, field: string):
     'created_by'
   ]
 
-  if (textFields.includes(field)) {
-    return value.trim()
-  }
-  
+  // For integer fields, be more forgiving with the input
   if (integerFields.includes(field)) {
-    const num = parseInt(value)
-    return isNaN(num) ? null : num
+    // Remove any non-numeric characters and whitespace
+    const cleaned = value.toString().trim().replace(/[^\d-]/g, '')
+    if (cleaned === '') return null
+    
+    const num = parseInt(cleaned)
+    if (isNaN(num)) {
+      console.warn(`Failed to parse integer for ${field}:`, { original: value, cleaned })
+      return null
+    }
+    return num
   }
-  
+
   if (numericFields.includes(field)) {
     const num = parseFloat(value)
     return isNaN(num) ? null : num
+  }
+  
+  if (textFields.includes(field)) {
+    return value.trim()
   }
   
   const dateFields = ['inspection_completion_date']
@@ -122,21 +141,6 @@ export const transformValue = (value: string | null | undefined, field: string):
   const timestampFields = ['last_updated', 'created_date']
   if (timestampFields.includes(field)) {
     return value ? new Date(value).toISOString() : null
-  }
-  
-  if (field === 'status') {
-    const statusMap: { [key: string]: GWD['status'] } = {
-      'CLEIR Approved': 'Ready',
-      'Dig Cancelled': 'Cancelled',
-      'Dig Completed': 'Complete',
-      'Dig Postponed': 'On Hold',
-      'Dig Report Received': 'Complete',
-      'Site Selected': 'Not Started',
-      'With CLEIR': 'Waiting for CLEIR'
-    }
-    
-    const cleanedStatus = value.trim().replace(/\s+/g, ' ')
-    return statusMap[cleanedStatus] || 'Not Started'
   }
   
   return value

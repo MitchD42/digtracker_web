@@ -11,6 +11,8 @@ import {
   Tooltip,
   Legend
 } from 'chart.js'
+import { GWD_STATUS_COLORS } from '@/lib/constants/chart-colors'
+import { GWD_STATUS_OPTIONS } from '@/lib/constants/gwd-statuses'
 
 ChartJS.register(
   CategoryScale,
@@ -26,32 +28,20 @@ interface GWDStatusChartProps {
 }
 
 export function GWDStatusChart({ data }: GWDStatusChartProps) {
-  console.log('GWDStatusChart received data:', data)
-  
-  if (!data) {
-    console.log('No data provided to GWDStatusChart')
-    return null
-  }
+  if (!data) return null
 
+  const labels = [...GWD_STATUS_OPTIONS]
+  
   const chartData = {
-    labels: Object.keys(data.statusCounts),
+    labels,
     datasets: [{
       label: 'GWDs by Status',
-      data: Object.values(data.statusCounts),
-      backgroundColor: [
-        '#4CAF50', // Complete
-        '#2196F3', // In Progress
-        '#F44336', // Cancelled
-        '#FFC107', // On Hold
-        '#9E9E9E', // Not Started
-        '#FF9800', // Waiting for CLEIR
-        '#8BC34A', // Ready
-        '#607D8B'  // No Longer Mine
-      ]
+      data: labels.map(status => data.statusCounts[status] || 0),
+      backgroundColor: labels.map(status => 
+        GWD_STATUS_COLORS[status as keyof typeof GWD_STATUS_COLORS]
+      )
     }]
   }
-
-  console.log('Chart data prepared:', chartData)
 
   return (
     <div style={{ height: '300px' }}>

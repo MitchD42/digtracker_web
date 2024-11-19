@@ -43,23 +43,33 @@ export class ImportHandler {
     
     // Clean and validate the data
     const validData = data
-      .map(row => this.cleanImportData(row))
-      .filter(row => {
-        if (!row.gwd_number) {
-          console.warn('Skipping row due to missing gwd_number:', row)
-          return false
-        }
-        return true
-      })
+        .map(row => {
+            try {
+                return this.cleanImportData(row)
+            } catch (error: unknown) {
+                const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+                console.warn('Skipping invalid row:', errorMessage)
+                return null
+            }
+        })
+        .filter((row): row is GWDImport => row !== null)
+
+    if (validData.length === 0) {
+        throw new Error('No valid rows found in import file')
+    }
 
     console.log('Data validation:', {
-      originalCount: data.length,
-      validCount: validData.length,
-      skippedCount: data.length - validData.length
+        originalCount: data.length,
+        validCount: validData.length,
+        skippedCount: data.length - validData.length
     })
 
     // Store in gwds_import first
     if (validData.length > 0) {
+      // First clear the import table
+      await this.supabase.from('gwds_import').delete().neq('gwd_id', 0)
+      
+      // Then insert new data
       const chunks = this.chunk(validData, 100)
       for (const chunk of chunks) {
         const { error: insertError } = await this.supabase
@@ -109,6 +119,7 @@ export class ImportHandler {
       const { error: insertError } = await this.supabase
         .from('gwds')
         .insert(newRecords)
+        .select()
 
       if (insertError) throw insertError
       console.log(`✅ Inserted ${newRecords.length} new records`)
@@ -123,50 +134,65 @@ export class ImportHandler {
 
   private cleanImportData(row: any): GWDImport {
     const cleaned: Partial<GWDImport> = {}
-    const validFields = [
-      'digtracker_id',
-      'gwd_number',
-      'system',
-      'pipeline',
-      'execution_year',
-      'dig_name',
-      'inspection_provider',
-      'status',
-      'ili_analysis',
-      'dig_criteria',
-      'inspection_start_relative',
-      'inspection_end_relative',
-      'inspection_length',
-      'target_features',
-      'smys',
-      'mop',
-      'design_factor',
-      'class_location',
-      'class_location_factor',
-      'p_failure',
-      'latitude',
-      'longitude',
-      'program_engineer',
-      'program_engineer_comments',
-      'project_engineer',
-      'post_execution_comments',
-      'last_updated',
-      'created_by',
-      'inspection_completion_date',
-      'actual_inspection_start',
-      'actual_inspection_start_relative',
-      'actual_inspection_end_relative',
-      'actual_inspection_length'
-    ] as const
+    
+    // Define allowed fields based on database schema
+    const allowedFields = [
+        'gwd_number',
+        'system',
+        'pipeline',
+        'status',
+        'execution_year',
+        'dig_name',
+        'inspection_provider',
+        'ili_analysis',
+        'dig_criteria',
+        'inspection_start_relative',
+        'inspection_end_relative',
+        'inspection_length',
+        'target_features',
+        'smys',
+        'mop',
+        'design_factor',
+        'class_location',
+        'class_location_factor',
+        'p_failure',
+        'latitude',
+        'longitude',
+        'program_engineer',
+        'program_engineer_comments',
+        'project_engineer',
+        'post_execution_comments',
+        'last_updated',
+        'created_by',
+        'inspection_completion_date',
+        'actual_inspection_start',
+        'actual_inspection_start_relative',
+        'actual_inspection_end_relative',
+        'actual_inspection_length',
+        'digtracker_id'
+    ]
 
-    validFields.forEach(field => {
-      if (field in row) {
-        const rawValue = row[field]
-        cleaned[field as keyof GWDImport] = this.transformValue(
-          rawValue !== null && rawValue !== undefined ? String(rawValue) : rawValue,
-          field
-        )
-      }
+    // Check for digtracker_id (required)
+    const digtrackerId = row.digtracker_id
+    if (digtrackerId === null || digtrackerId === undefined || digtrackerId === '') {
+        console.warn('Skipping row due to missing or invalid ID:', row)
+        throw new Error('ID is mandatory')
+    }
+    cleaned.digtracker_id = this.transformValue(String(digtrackerId), 'digtracker_id')
+
+    // Check for GWD number (required)
+    const gwdNumber = row.gwd_number
+    if (gwdNumber === null || gwdNumber === undefined || gwdNumber === '') {
+        console.warn('Skipping row due to missing gwd_number:', row)
+        throw new Error('GWD number is mandatory')
+    }
+    cleaned.gwd_number = this.transformValue(String(gwdNumber), 'gwd_number')
+
+    // Process remaining fields
+    Object.keys(row).forEach(field => {
+        if (allowedFields.includes(field) && field !== 'digtracker_id' && field !== 'gwd_number') {
+            cleaned[field as keyof GWDImport] = this.transformValue(row[field], field)
+        }
     })
 
     return cleaned as GWDImport
@@ -260,73 +286,59 @@ export class ImportHandler {
     }[]
   } {
     console.group('🔍 compareGWDs called')
-    console.log('Inputs:', {
-      existingCount: existing.length,
-      importedCount: imported.length
-    })
+    
+    const diffs: {[key: string]: any[]} = {};
+    const skipFields = ['gwd_id', 'created_date', 'import_date', 'sync_status']
 
-    const diffs: {
-      [key: string]: {
-        gwd_id: number | null;
-        gwd_number: number;
-        field: string;
-        existing: any;
-        imported: any;
-        isNew?: boolean;
-      }[]
-    } = {};
-
-    // Create a map of existing records by digtracker_id for faster lookups
+    // Create a map of existing records by digtracker_id
     const existingByDigTrackerId = new Map(
-      existing.map(gwd => [gwd.digtracker_id, gwd])
+        existing.map(gwd => [gwd.digtracker_id, gwd])
     )
 
     imported.forEach(importedGWD => {
-      const existingGWD = existingByDigTrackerId.get(importedGWD.digtracker_id)
-      
-      if (!existingGWD) {
-        // New record - no matching digtracker_id
-        const key = `new_${importedGWD.digtracker_id}`
-        const newRecordDiffs = Object.keys(importedGWD)
-          .filter(key => !['gwd_id', 'import_date', 'sync_status', 'created_date'].includes(key))
-          .map(field => ({
-            gwd_id: null,
-            gwd_number: importedGWD.gwd_number,
-            field,
-            existing: null,
-            imported: importedGWD[field as keyof GWDImport],
-            isNew: true
-          }))
+        // Always match on digtracker_id, not gwd_number
+        const existingGWD = existingByDigTrackerId.get(importedGWD.digtracker_id)
+        
+        if (!existingGWD) {
+            // New record - create a unique key using digtracker_id
+            const key = `new_${importedGWD.digtracker_id}`
+            diffs[key] = Object.keys(importedGWD)
+                .filter(field => 
+                    !skipFields.includes(field) && 
+                    importedGWD[field as keyof GWDImport] !== null
+                )
+                .map(field => ({
+                    gwd_id: null,
+                    gwd_number: importedGWD.gwd_number,
+                    field,
+                    existing: null,
+                    imported: importedGWD[field as keyof GWDImport],
+                    isNew: true
+                }))
+        } else {
+            // Existing record - use gwd_id as key
+            const key = String(existingGWD.gwd_id)
+            const differences = Object.keys(importedGWD)
+                .filter(field => 
+                    !skipFields.includes(field) &&
+                    importedGWD[field as keyof GWDImport] !== null &&
+                    importedGWD[field as keyof GWDImport] !== existingGWD[field as keyof GWD]
+                )
+                .map(field => ({
+                    gwd_id: existingGWD.gwd_id,
+                    gwd_number: existingGWD.gwd_number,
+                    field,
+                    existing: existingGWD[field as keyof GWD],
+                    imported: importedGWD[field as keyof GWDImport]
+                }))
 
-        diffs[key] = newRecordDiffs
-      } else {
-        // Existing record - compare fields
-        const key = String(existingGWD.gwd_id)
-        const fieldDiffs = Object.keys(importedGWD)
-          .filter(field => !['gwd_id', 'import_date', 'sync_status', 'created_date'].includes(field))
-          .filter(field => importedGWD[field as keyof GWDImport] !== existingGWD[field as keyof GWD])
-          .map(field => ({
-            gwd_id: existingGWD.gwd_id,
-            gwd_number: importedGWD.gwd_number,
-            field,
-            existing: existingGWD[field as keyof GWD],
-            imported: importedGWD[field as keyof GWDImport],
-            isNew: false
-          }))
-
-        if (fieldDiffs.length > 0) {
-          diffs[key] = fieldDiffs
+            if (differences.length > 0) {
+                diffs[key] = differences
+            }
         }
-      }
     })
 
-    console.log('Comparison complete:', {
-      diffKeys: Object.keys(diffs),
-      diffCount: Object.keys(diffs).length,
-      sample: Object.entries(diffs)[0]
-    })
     console.groupEnd()
-
     return diffs
   }
 } 

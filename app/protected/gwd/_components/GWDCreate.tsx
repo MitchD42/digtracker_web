@@ -5,14 +5,13 @@ import { Button } from '@/components/ui/button'
 import { createClient } from '@/utils/supabase/client'
 import { AFE, GWDWithAFE, AFEWithPipelines, Pipeline, System } from '@/types/database'
 import { UI } from '@/lib/constants/ui'
+import { GWDStatus, GWD_STATUS_OPTIONS } from '@/lib/constants/gwd-statuses'
 
 interface GWDCreateProps {
   afes: AFEWithPipelines[]
   systems: System[]
   onSuccess: () => void
 }
-
-type GWDStatus = 'Complete' | 'In Progress' | 'Cancelled' | 'On Hold' | 'Not Started' | 'Waiting for CLEIR' | 'Ready' | 'No Longer Mine'
 
 interface NewGWD {
   gwd_number: string
@@ -40,7 +39,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
     afe_id: '',
     system: '',
     pipeline: '',
-    status: 'Not Started',
+    status: 'Site Selected',
     initial_budget: '',
     land_cost: '0',
     dig_cost: '0',
@@ -148,7 +147,7 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
         afe_id: '',
         system: '',
         pipeline: '',
-        status: 'Not Started',
+        status: 'Site Selected',
         initial_budget: '',
         land_cost: '0',
         dig_cost: '0',
@@ -235,14 +234,11 @@ export default function GWDCreate({ afes, systems, onSuccess }: GWDCreateProps) 
           value={newGWD.status}
           onChange={e => setNewGWD((prev: NewGWD) => ({ ...prev, status: e.target.value as GWDStatus }))}
         >
-          <option value="Not Started">Not Started</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Complete">Complete</option>
-          <option value="Cancelled">Cancelled</option>
-          <option value="On Hold">On Hold</option>
-          <option value="Waiting for CLEIR">Waiting for CLEIR</option>
-          <option value="Ready">Ready</option>
-          <option value="No Longer Mine">No Longer Mine</option>
+          {GWD_STATUS_OPTIONS.map(status => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
         </select>
       </div>
 

@@ -1,4 +1,8 @@
 import { createClient } from './client'
+import { GWD_STATUS_COLORS } from '@/lib/constants/chart-colors'
+
+// Create a type from the keys of GWD_STATUS_COLORS
+type GWDStatus = keyof typeof GWD_STATUS_COLORS
 
 // Define base types
 interface AFE {
@@ -23,7 +27,7 @@ interface ChangeOrder {
 
 interface GWD {
   gwd_id: number
-  status: string
+  status: GWDStatus
   land_cost: number
   dig_cost: number
   execution_year?: number
@@ -54,16 +58,7 @@ export interface FinancialMetrics {
 
 export interface GWDMetrics {
   totalCount: number
-  statusCounts: {
-    Complete: number
-    'In Progress': number
-    Cancelled: number
-    'On Hold': number
-    'Not Started': number
-    'Waiting for CLEIR': number
-    Ready: number
-    'No Longer Mine': number
-  }
+  statusCounts: Record<keyof typeof GWD_STATUS_COLORS, number>
 }
 
 export interface CriticalAlert {
@@ -149,43 +144,26 @@ export async function getGWDMetrics(): Promise<GWDMetrics> {
     console.error('Error fetching GWD metrics:', error)
     return {
       totalCount: 0,
-      statusCounts: {
-        Complete: 0,
-        'In Progress': 0,
-        Cancelled: 0,
-        'On Hold': 0,
-        'Not Started': 0,
-        'Waiting for CLEIR': 0,
-        Ready: 0,
-        'No Longer Mine': 0
-      }
+      statusCounts: Object.keys(GWD_STATUS_COLORS).reduce((acc, status) => {
+        acc[status as keyof typeof GWD_STATUS_COLORS] = 0
+        return acc
+      }, {} as Record<keyof typeof GWD_STATUS_COLORS, number>)
     }
   }
 
-  console.log('Raw GWDs data:', gwds)
-
-  const statusCounts = {
-    Complete: 0,
-    'In Progress': 0,
-    Cancelled: 0,
-    'On Hold': 0,
-    'Not Started': 0,
-    'Waiting for CLEIR': 0,
-    Ready: 0,
-    'No Longer Mine': 0
-  }
+  const statusCounts = Object.keys(GWD_STATUS_COLORS).reduce((acc, status) => {
+    acc[status as keyof typeof GWD_STATUS_COLORS] = 0
+    return acc
+  }, {} as Record<keyof typeof GWD_STATUS_COLORS, number>)
 
   gwds?.forEach(gwd => {
-    // Access the status from the gwd object and check if it's a valid status
-    const status = gwd.status as keyof typeof statusCounts
-    if (status && Object.keys(statusCounts).includes(status)) {
+    const status = gwd.status as keyof typeof GWD_STATUS_COLORS
+    if (status && status in GWD_STATUS_COLORS) {
       statusCounts[status]++
     } else {
       console.warn('Unknown status:', gwd.status)
     }
   })
-
-  console.log('Processed status counts:', statusCounts)
 
   return {
     totalCount: gwds?.length || 0,
@@ -251,8 +229,8 @@ export async function getCriticalAlerts(): Promise<CriticalAlerts> {
       status,
       afe:afes (afe_number)
     `)
-    .in('status', ['Not Started', 'On Hold'])
-    .lt('created_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()) // Older than 30 days
+    .in('status', ['Site Selected', 'Dig Postponed'])
+    .lt('created_date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
 
   staleGWDs?.forEach(gwd => {
     alerts.push({

@@ -32,7 +32,7 @@ export interface GWD {
   afe_id: number | null
   system: string | null
   pipeline: string | null
-  status: 'Complete' | 'In Progress' | 'Cancelled' | 'On Hold' | 'Not Started' | 'Waiting for CLEIR' | 'Ready' | 'No Longer Mine'
+  status: 'CLEIR Approved' | 'Dig Cancelled' | 'Dig Completed' | 'Dig Postponed' | 'Dig Report Received' | 'Site Selected' | 'With CLEIR'
   notes: string | null
   initial_budget: number
   land_cost: number

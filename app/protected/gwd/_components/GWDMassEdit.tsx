@@ -11,6 +11,7 @@ import {
 import { createClient } from '@/utils/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Save, ChevronUp, ChevronDown, ArrowUpDown } from 'lucide-react'
+import { GWDStatus, GWD_STATUS_OPTIONS } from '@/lib/constants/gwd-statuses'
 
 interface GWDMassEditProps {
   gwds: GWDWithAFE[]
@@ -24,25 +25,6 @@ interface EditableCell {
   value: any
 }
 
-const STATUS_MAP = {
-  'CLEIR Approved': 'Ready',
-  'Dig Cancelled': 'Cancelled',
-  'Dig Completed': 'Complete',
-  'Dig Postponed': 'On Hold',
-  'Dig Report Received': 'Complete',
-  'Site Selected': 'Not Started',
-  'With CLEIR': 'Waiting for CLEIR'
-} as const
-
-const STATUS_OPTIONS = [
-  "Ready",
-  "Cancelled",
-  "Complete",
-  "On Hold",
-  "Not Started",
-  "Waiting for CLEIR"
-]
-
 type SortField = 'gwd_number' | 'status' | 'initial_budget' | 'total_cost'
 type SortDirection = 'asc' | 'desc'
 
@@ -52,7 +34,7 @@ const FilterButtonGroup = ({
   onChange,
   label 
 }: { 
-  options: string[]
+  options: readonly string[]
   selected: string[]
   onChange: (value: string[]) => void
   label: string
@@ -254,7 +236,7 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FilterButtonGroup
-                options={STATUS_OPTIONS}
+                options={GWD_STATUS_OPTIONS}
                 selected={statusFilters}
                 onChange={setStatusFilters}
                 label="Filter by Status"
@@ -291,7 +273,7 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
       {isFiltersApplied && (
         <>
           {/* Save Changes Button */}
-          <div className="flex justify-end sticky top-0 bg-background z-10 py-2">
+          <div className="flex justify-start sticky top-0 bg-background z-10 py-2">
             <Button
               onClick={saveChanges}
               disabled={editedCells.length === 0}
@@ -365,7 +347,7 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
                       <td className="p-2">
                         <Select
                           value={gwd.status || undefined}
-                          onValueChange={(value) => handleCellEdit(gwd.gwd_id, 'status', value)}
+                          onValueChange={(value) => handleCellEdit(gwd.gwd_id, 'status', value as GWDStatus)}
                         >
                           <SelectTrigger className="w-[180px]">
                             <SelectValue>
@@ -373,7 +355,7 @@ export default function GWDMassEdit({ gwds, afes, onUpdate }: GWDMassEditProps) 
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            {STATUS_OPTIONS.map(status => (
+                            {GWD_STATUS_OPTIONS.map(status => (
                               <SelectItem key={status} value={status}>
                                 {status}
                               </SelectItem>

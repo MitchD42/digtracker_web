@@ -14,6 +14,7 @@ import {
 import { X, Check } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import { UI } from '@/lib/constants/ui'
+import { GWDStatus, GWD_STATUS_OPTIONS } from '@/lib/constants/gwd-statuses'
 
 interface GWDListProps {
   gwds: GWDWithAFE[]
@@ -23,17 +24,19 @@ interface GWDListProps {
 type SortField = 'gwd_number' | 'status' | 'initial_budget' | 'total_cost'
 type SortDirection = 'asc' | 'desc'
 
-const FilterButtonGroup = ({ 
+interface FilterButtonGroupProps<T extends string> {
+  options: readonly T[]
+  selected: T[]
+  onChange: (value: T[]) => void
+  label: string
+}
+
+const FilterButtonGroup = <T extends string>({ 
   options, 
   selected, 
   onChange,
   label 
-}: { 
-  options: string[]
-  selected: string[]
-  onChange: (value: string[]) => void
-  label: string
-}) => {
+}: FilterButtonGroupProps<T>) => {
   return (
     <div className="space-y-2">
       <h3 className={UI.text.label}>{label}</h3>
@@ -61,15 +64,21 @@ const FilterButtonGroup = ({
 }
 
 const STATUS_VARIANTS = {
-  Complete: 'default',
-  'In Progress': 'secondary',
-  Cancelled: 'destructive',
+  'CLEIR Approved': 'default',
+  'Dig Cancelled': 'destructive',
+  'Dig Completed': 'default',
+  'Dig Postponed': 'secondary',
+  'Dig Report Received': 'default',
+  'Site Selected': 'secondary',
+  'With CLEIR': 'secondary',
   default: 'outline'
 } as const
 
+const STATUS_OPTIONS = GWD_STATUS_OPTIONS
+
 export default function GWDList({ gwds, onSelect }: GWDListProps) {
   const [searchTerm, setSearchTerm] = useState('')
-  const [statusFilters, setStatusFilters] = useState<string[]>([])
+  const [statusFilters, setStatusFilters] = useState<GWDStatus[]>([])
   const [systemFilters, setSystemFilters] = useState<string[]>([])
   const [sortField, setSortField] = useState<SortField>('gwd_number')
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc')
@@ -100,7 +109,10 @@ export default function GWDList({ gwds, onSelect }: GWDListProps) {
         comparison = a.gwd_number - b.gwd_number
         break
       case 'status':
-        comparison = (a.status || '').localeCompare(b.status || '')
+        const statusOrder = GWD_STATUS_OPTIONS
+        const aIndex = statusOrder.indexOf(a.status as GWDStatus)
+        const bIndex = statusOrder.indexOf(b.status as GWDStatus)
+        comparison = aIndex - bIndex
         break
       case 'initial_budget':
         comparison = a.initial_budget - b.initial_budget
@@ -117,8 +129,16 @@ export default function GWDList({ gwds, onSelect }: GWDListProps) {
   // Calculate summary stats
   const totalBudget = filteredGWDs.reduce((sum, gwd) => sum + gwd.initial_budget, 0)
   const totalCost = filteredGWDs.reduce((sum, gwd) => sum + gwd.land_cost + gwd.dig_cost, 0)
-  const completedCount = filteredGWDs.filter(gwd => gwd.status === 'Complete').length
-  const inProgressCount = filteredGWDs.filter(gwd => gwd.status === 'In Progress').length
+  const completedCount = filteredGWDs.filter(gwd => 
+    gwd.status === 'Dig Completed' || 
+    gwd.status === 'CLEIR Approved'
+  ).length
+  const inProgressCount = filteredGWDs.filter(gwd => 
+    gwd.status === 'Site Selected' || 
+    gwd.status === 'With CLEIR' || 
+    gwd.status === 'Dig Report Received' ||
+    gwd.status === 'Dig Postponed'
+  ).length
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -128,15 +148,6 @@ export default function GWDList({ gwds, onSelect }: GWDListProps) {
       setSortDirection('asc')
     }
   }
-
-  const STATUS_OPTIONS = [
-    "Ready",
-    "Cancelled",
-    "Complete",
-    "On Hold",
-    "Not Started",
-    "Waiting for CLEIR"
-  ]
 
   return (
     <div className={UI.containers.list}>

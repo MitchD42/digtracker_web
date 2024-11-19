@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label'
 import { createClient } from '@/utils/supabase/client'
 import { X, Edit2, Save, ChevronDown, ChevronUp } from 'lucide-react'
 import { UI } from '@/lib/constants/ui'
+import { GWDStatus, GWD_STATUS_OPTIONS } from '@/lib/constants/gwd-statuses'
 
 interface GWDDetailsProps {
   gwd: GWDWithAFE
@@ -14,8 +15,6 @@ interface GWDDetailsProps {
   onClose: () => void
   onUpdate: () => void
 }
-
-type GWDStatus = 'Complete' | 'In Progress' | 'Cancelled' | 'On Hold' | 'Not Started' | 'Waiting for CLEIR' | 'Ready' | 'No Longer Mine'
 
 interface EditableGWD extends Omit<GWDWithAFE, 'status'> {
   status: GWDStatus;
@@ -168,14 +167,11 @@ export default function GWDDetails({ gwd, afes, onClose, onUpdate }: GWDDetailsP
                     status: e.target.value as GWDStatus
                   }))}
                 >
-                  <option value="Not Started">Not Started</option>
-                  <option value="In Progress">In Progress</option>
-                  <option value="Complete">Complete</option>
-                  <option value="Cancelled">Cancelled</option>
-                  <option value="On Hold">On Hold</option>
-                  <option value="Waiting for CLEIR">Waiting for CLEIR</option>
-                  <option value="Ready">Ready</option>
-                  <option value="No Longer Mine">No Longer Mine</option>
+                  {GWD_STATUS_OPTIONS.map(status => (
+                    <option key={status} value={status}>
+                      {status}
+                    </option>
+                  ))}
                 </select>
               ) : (
                 <p className={UI.text.subtitle}>{editedGWD.status}</p>
