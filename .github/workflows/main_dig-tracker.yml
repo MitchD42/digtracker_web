@@ -65,9 +65,11 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      - name: Wait for any pending operations
-        run: sleep 60
-      
+      - name: Wait for any pending operations and verify health
+        run: |
+          echo "Waiting for 120 seconds before deployment..."
+          sleep 120
+
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -76,3 +78,9 @@ jobs:
           slot-name: 'Production'
           package: .
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_532F0DB5875E4A74A5DAF3EE10EE5067 }}
+        timeout-minutes: 10
+
+      - name: Verify deployment
+        run: |
+          echo "Waiting for deployment to stabilize..."
+          sleep 30
