@@ -38,12 +38,12 @@ jobs:
           -x "node_modules/*" \
           -x ".git/*" \
           -x ".github/*" \
-          -x ".next/*" \
           -x "dist/*" \
           -x "build/*" \
           -x ".env*" \
           -x "coverage/*" \
-          -x "*.log"
+          -x "*.log" \
+          -x ".next/cache/*"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
