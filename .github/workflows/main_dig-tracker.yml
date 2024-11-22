@@ -33,18 +33,18 @@ jobs:
           rm -rf node_modules
           npm ci --only=production
 
-      - name: Zip artifact for deployment
+      - name: Create deployment package
         run: |
-          zip release.zip ./* -r \
-          -x ".git/*" \
-          -x ".github/*" \
-          -x "dist/*" \
-          -x "build/*" \
-          -x ".env*" \
-          -x "coverage/*" \
-          -x "*.log" \
-          -x ".next/cache/*" \
-          -x "node_modules/.cache/*"
+          7z a -tzip release.zip ./* \
+          -x!".git" \
+          -x!".github" \
+          -x!"dist" \
+          -x!"build" \
+          -x!".env" \
+          -x!"coverage" \
+          -x!"*.log" \
+          -x!".next/cache" \
+          -x!"node_modules/.cache"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
