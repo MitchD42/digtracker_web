@@ -21,6 +21,11 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Set environment variables
+        run: |
+          echo "SUPABASE_URL=${{ secrets.SUPABASE_URL }}" >> $GITHUB_ENV
+          echo "SUPABASE_ANON_KEY=${{ secrets.SUPABASE_ANON_KEY }}" >> $GITHUB_ENV
+
       - name: npm install, build, and test
         run: |
           npm install
