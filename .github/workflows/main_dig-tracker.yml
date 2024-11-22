@@ -36,15 +36,12 @@ jobs:
       - name: Create deployment package
         run: |
           7z a -tzip release.zip ./* \
-          -x!".git" \
-          -x!".github" \
-          -x!"dist" \
-          -x!"build" \
-          -x!".env" \
-          -x!"coverage" \
-          -x!"*.log" \
-          -x!".next/cache" \
-          -x!"node_modules/.cache"
+          -xr!.next/cache \
+          -xr!node_modules/.cache \
+          -xr!.git \
+          -xr!.github \
+          -xr!coverage \
+          -xr!*.log
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
