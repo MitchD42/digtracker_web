@@ -1,96 +1,137 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# Pipeline Dig Project Tracker
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+A comprehensive web application for managing and tracking oil pipeline excavation projects, built with Next.js and Supabase.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+## Overview
+
+This enterprise-grade application helps pipeline operators and contractors manage excavation projects by tracking:
+- Dig locations and schedules
+- AFE (Authorization for Expenditure) management
+- GWD (Ground Work Details) tracking
+- Permits and compliance requirements
+- Purchase orders and vendor management
 
 ## Features
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Middleware
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+- **AFE Management**
+  - Create and track multiple AFE projects
+  - Monitor budget utilization
+  - Link multiple pipelines to AFEs
+  - Track project status and completion rates
 
-## Demo
+- **GWD Tracking**
+  - Comprehensive dig details management
+  - Technical specifications tracking
+  - GPS coordinate mapping
+  - Inspection data management
+  - Progress status monitoring
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+- **Financial Management**
+  - Budget tracking and forecasting
+  - Cost analysis and reporting
+  - Purchase order management
+  - Change order tracking
 
-## Deploy to Vercel
+- **Reporting & Analytics**
+  - Real-time dashboard
+  - Custom report generation
+  - Financial metrics visualization
+  - Project status analytics
+  - Export capabilities
 
-Vercel deployment will guide you through creating a Supabase account and project.
+## Tech Stack
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+### Core Technologies
+- [Next.js](https://nextjs.org) - React framework
+- [Supabase](https://supabase.com) - Backend and database
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Tailwind CSS](https://tailwindcss.com) - Styling
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+### Key Libraries
+- [Chart.js](https://www.chartjs.org/) - Data visualization
+- [shadcn/ui](https://ui.shadcn.com/) - UI components
+- [Lucide React](https://lucide.dev) - Icons
+- [date-fns](https://date-fns.org/) - Date manipulation
+- [Papa Parse](https://www.papaparse.com/) - CSV parsing
+- [XLSX](https://sheetjs.com/) - Excel file handling
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+## Getting Started
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+### Prerequisites
 
-## Clone and run locally
+- Node.js 18+
+- NPM or Yarn
+- Supabase account
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+### Local Development
 
-2. Create a Next.js app using the Supabase Starter template npx command
+1. Clone the repository:
+```bash
+git clone [your-repo-url]
+```
 
-   ```bash
-   npx create-next-app -e with-supabase
-   ```
+2. Install dependencies:
+```bash
+npm install
+```
 
-3. Use `cd` to change into the app's directory
+3. Configure environment variables:
+   - Copy `.env.example` to `.env.local`
+   - Update with your Supabase credentials:
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-   ```bash
-   cd name-of-new-app
-   ```
+4. Start the development server:
+```bash
+npm run dev
+```
 
-4. Rename `.env.example` to `.env.local` and update the following:
+Visit [http://localhost:3000](http://localhost:3000) to view the application.
 
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=[INSERT SUPABASE PROJECT API ANON KEY]
-   ```
+## Deployment
 
-   Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` can be found in [your Supabase project's API settings](https://app.supabase.com/project/_/settings/api)
+### Deploy to Azure
 
-5. You can now run the Next.js local development server:
+This application is configured for deployment to Azure Web Apps using GitHub Actions. The deployment workflow includes:
 
-   ```bash
-   npm run dev
-   ```
+1. Automated builds on push to main branch
+2. Environment variable configuration
+3. Production deployment with health checks
+4. Artifact management
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+For deployment setup:
+1. Configure Azure Web App
+2. Set up GitHub repository secrets
+3. Configure deployment credentials
+4. Enable GitHub Actions workflow
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+## Contributing
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a pull request
 
-## Feedback and issues
+## Support
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+For support, please open an issue in the GitHub repository.
 
-## More Supabase examples
+## License
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+Copyright (c) 2024 Codyware
+
+This software is provided under a dual license:
+
+1. For non-commercial and commercial use: This software is freely available for both personal and business use under the following conditions:
+   - You may use, modify, and integrate the software into your operations
+   - You must provide attribution to the original author
+   - You may not resell, relicense, or redistribute the software as a standalone product
+   - You may not offer the software as a hosted service (SaaS) without explicit permission
+   - All modifications must be shared back to the community under these same terms
+
+2. For resale or SaaS rights: Please contact codydyck@gmail.com for licensing options.
+
+All rights reserved. While this software may be used freely in business operations, the right to resell, relicense, or offer as a service is explicitly reserved by the copyright holder.
