@@ -67,7 +67,7 @@ This enterprise-grade application helps pipeline operators and contractors manag
 
 1. Clone the repository:
 ```bash
-git clone [your-repo-url]
+git clone https://github.com/MitchD42/digtracker_web.git
 ```
 
 2. Install dependencies:
